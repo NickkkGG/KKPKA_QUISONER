@@ -135,7 +135,7 @@ export default function HasilPage() {
         <div className="absolute top-0 right-0 w-64 h-64 opacity-15 pointer-events-none"
           style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 pb-10 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 pb-14 text-center">
           <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-white/20 border border-white/30">
