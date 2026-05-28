@@ -10,7 +10,7 @@ export default function Navbar() {
       transition={{ duration: 0.4 }}
       className="fixed top-0 left-0 right-0 z-50"
       style={{ background: "#003087", boxShadow: "0 2px 16px rgba(0,48,135,0.4)" }}>
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Left: Logo + nama universitas */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 flex-shrink-0">

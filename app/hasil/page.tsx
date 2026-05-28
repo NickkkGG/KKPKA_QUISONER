@@ -5,12 +5,20 @@ import { motion, useInView, animate } from "framer-motion";
 import { CheckCircle, Heart, Activity, Zap, RotateCcw } from "lucide-react";
 import { calculateScores, interpretDepresi, interpretKecemasan, interpretStress } from "@/lib/dass42";
 
-const LEVEL_STYLE: Record<string, { color: string; bg: string; border: string; gradient: string }> = {
-  Normal:         { color: "#fff", bg: "linear-gradient(135deg,#166534,#16a34a)", border: "#4ade80", gradient: "linear-gradient(135deg,#166534,#16a34a)" },
-  Ringan:         { color: "#fff", bg: "linear-gradient(135deg,#854d0e,#ca8a04)", border: "#facc15", gradient: "linear-gradient(135deg,#854d0e,#ca8a04)" },
-  Sedang:         { color: "#fff", bg: "linear-gradient(135deg,#9a3412,#ea580c)", border: "#fb923c", gradient: "linear-gradient(135deg,#9a3412,#ea580c)" },
-  Parah:          { color: "#fff", bg: "linear-gradient(135deg,#991b1b,#dc2626)", border: "#f87171", gradient: "linear-gradient(135deg,#991b1b,#dc2626)" },
-  "Sangat Parah": { color: "#fff", bg: "linear-gradient(135deg,#7f1d1d,#b91c1c)", border: "#fca5a5", gradient: "linear-gradient(135deg,#7f1d1d,#b91c1c)" },
+const LEVEL_STYLE: Record<string, { color: string; bg: string; border: string; text: string }> = {
+  Normal:         { color: "#166534", bg: "#f0fdf4", border: "#bbf7d0", text: "#16a34a" },
+  Ringan:         { color: "#854d0e", bg: "#fefce8", border: "#fef08a", text: "#ca8a04" },
+  Sedang:         { color: "#9a3412", bg: "#fff7ed", border: "#fed7aa", text: "#ea580c" },
+  Parah:          { color: "#991b1b", bg: "#fef2f2", border: "#fecaca", text: "#dc2626" },
+  "Sangat Parah": { color: "#7f1d1d", bg: "#fef2f2", border: "#fca5a5", text: "#b91c1c" },
+};
+
+const SCORE_GRADIENT: Record<string, string> = {
+  Normal:         "linear-gradient(135deg,#166534,#16a34a)",
+  Ringan:         "linear-gradient(135deg,#854d0e,#ca8a04)",
+  Sedang:         "linear-gradient(135deg,#9a3412,#ea580c)",
+  Parah:          "linear-gradient(135deg,#991b1b,#dc2626)",
+  "Sangat Parah": "linear-gradient(135deg,#7f1d1d,#b91c1c)",
 };
 
 const MOTIVASI: Record<string, string> = {
@@ -42,39 +50,42 @@ function ScoreCard({ label, Icon, score, maxScore, interpret, delay }: {
   const s = LEVEL_STYLE[interpret.level];
   const pct = Math.min((score / maxScore) * 100, 100);
   return (
-    <motion.div initial={{ opacity: 0, y: 24, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+    <motion.div initial={{ opacity: 0, y: 20, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, type: "spring", stiffness: 280, damping: 22 }}
-      className="rounded-2xl p-5 relative overflow-hidden"
-      style={{ background: s.bg, boxShadow: `0 8px 32px rgba(0,0,0,0.3)` }}>
-      {/* Glow top-right */}
-      <div className="absolute top-0 right-0 w-28 h-28 rounded-full pointer-events-none opacity-30"
-        style={{ background: `radial-gradient(circle, white 0%, transparent 70%)`, transform: "translate(40%,-40%)" }} />
-
-      <div className="flex items-center justify-between mb-4 relative">
+      className="rounded-2xl p-5 bg-white"
+      style={{ border: `1.5px solid ${s.border}`, boxShadow: `0 4px 20px rgba(0,0,0,0.06)` }}>
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/20">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: SCORE_GRADIENT[interpret.level] }}>
             <Icon className="w-4 h-4 text-white" />
           </div>
-          <span className="text-sm font-semibold text-white">{label}</span>
+          <span className="text-sm font-semibold text-slate-700">{label}</span>
         </div>
-        <div className="text-right">
-          <span className="text-3xl font-bold text-white tabular-nums"><AnimatedNumber value={score} /></span>
-          <span className="text-white/40 text-xs">/{maxScore}</span>
+        <div>
+          <span className="text-2xl font-bold tabular-nums" style={{ color: s.text }}>
+            <AnimatedNumber value={score} />
+          </span>
+          <span className="text-slate-300 text-xs">/{maxScore}</span>
         </div>
       </div>
 
-      <div className="h-2 rounded-full overflow-hidden mb-3 bg-black/20">
-        <motion.div className="h-full rounded-full bg-white/80"
+      <div className="h-2 rounded-full overflow-hidden mb-3" style={{ background: s.bg }}>
+        <motion.div className="h-full rounded-full"
+          style={{ background: SCORE_GRADIENT[interpret.level] }}
           initial={{ width: 0 }} animate={{ width: `${pct}%` }}
           transition={{ delay: delay + 0.4, duration: 1, ease: [0.34, 1.56, 0.64, 1] }} />
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold text-white">{interpret.level}</span>
+        <span className="text-sm font-bold px-2.5 py-0.5 rounded-full text-white"
+          style={{ background: SCORE_GRADIENT[interpret.level] }}>
+          {interpret.level}
+        </span>
         <div className="flex gap-1">
           {["Normal","Ringan","Sedang","Parah","Sangat Parah"].map((lvl) => (
             <div key={lvl} className="w-1.5 h-1.5 rounded-full"
-              style={{ background: lvl === interpret.level ? "white" : "rgba(255,255,255,0.2)" }} />
+              style={{ background: lvl === interpret.level ? s.text : "#e2e8f0" }} />
           ))}
         </div>
       </div>
@@ -103,9 +114,9 @@ export default function HasilPage() {
   }, [router]);
 
   if (!data || !scores) return (
-    <main className="min-h-screen flex items-center justify-center" style={{ background: "#0a0f1e" }}>
+    <main className="min-h-screen flex items-center justify-center" style={{ background: "#f0f4f8" }}>
       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className="w-8 h-8 rounded-full border-2 border-yellow-400 border-t-transparent" />
+        className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent" />
     </main>
   );
 
@@ -116,50 +127,51 @@ export default function HasilPage() {
   const worst = [dResult.level, kResult.level, sResult.level].reduce((a, b) => order.indexOf(a) > order.indexOf(b) ? a : b);
 
   return (
-    <main className="min-h-screen px-4 py-10 relative overflow-hidden"
-      style={{ background: "linear-gradient(160deg,#0a0f1e 0%,#0d1b3e 50%,#0a0f1e 100%)" }}>
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 70% 10%, rgba(37,99,235,0.12) 0%, transparent 60%)" }} />
+    <main className="min-h-screen relative overflow-hidden" style={{ background: "#f0f4f8" }}>
+      {/* Hero blue header */}
+      <div className="absolute top-0 left-0 right-0 h-64 pointer-events-none"
+        style={{ background: "linear-gradient(135deg,#003087 0%,#1a4fa0 60%,#2563eb 100%)" }}>
+        <div className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.4) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+        <div className="absolute top-0 right-0 w-64 h-64 opacity-15"
+          style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
+      </div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8">
+      <div className="max-w-5xl mx-auto px-4 pt-20 pb-16 relative z-10">
+        {/* Header — di atas hero biru */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg,#003087,#1a4fa0)", boxShadow: "0 8px 32px rgba(0,48,135,0.5)" }}>
-            <CheckCircle className="w-8 h-8 text-white" />
+            className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-white/20 border border-white/30">
+            <CheckCircle className="w-7 h-7 text-white" />
           </motion.div>
-          <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-            className="text-2xl sm:text-3xl font-bold text-white mb-1">Hasil Kuesioner DASS-42</motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="text-white/60 text-sm">{data.nama} · {data.prodi}</motion.p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Hasil Kuesioner DASS-42</h1>
+          <p className="text-blue-200 text-sm">{data.nama} · {data.prodi}</p>
           {saved && (
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}
-              className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs"
-              style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)" }}>
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400" /> Data tersimpan
+              className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs bg-white/20 text-white border border-white/30">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-300" /> Data tersimpan
             </motion.div>
           )}
         </motion.div>
 
-        {/* 2-column layout on desktop */}
+        {/* 2-column layout di laptop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          {/* Left: Score cards */}
+          {/* Kiri: Score cards */}
           <div className="space-y-4">
             <ScoreCard label="Depresi"   Icon={Heart}    score={scores.depresi}   maxScore={42} interpret={dResult} delay={0.1} />
             <ScoreCard label="Kecemasan" Icon={Activity} score={scores.kecemasan} maxScore={42} interpret={kResult} delay={0.25} />
             <ScoreCard label="Stres"     Icon={Zap}      score={scores.stress}    maxScore={42} interpret={sResult} delay={0.4} />
           </div>
 
-          {/* Right: Summary + motivasi */}
+          {/* Kanan: Ringkasan + motivasi */}
           <div className="space-y-4">
-            {/* Summary card */}
+            {/* Ringkasan */}
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
-              className="rounded-2xl p-6"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(12px)" }}>
-              <p className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-4">Ringkasan Hasil</p>
+              className="bg-white rounded-2xl p-6"
+              style={{ boxShadow: "0 4px 20px rgba(0,48,135,0.08)", border: "1px solid rgba(0,48,135,0.08)" }}>
+              <div className="h-1 w-10 rounded-full mb-4" style={{ background: "linear-gradient(90deg,#003087,#FFD700)" }} />
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">Ringkasan Hasil</p>
               <div className="space-y-3">
                 {[
                   { label: "Depresi", result: dResult, score: scores.depresi },
@@ -169,11 +181,11 @@ export default function HasilPage() {
                   const s = LEVEL_STYLE[item.result.level];
                   return (
                     <div key={item.label} className="flex items-center justify-between">
-                      <span className="text-sm text-white/70">{item.label}</span>
+                      <span className="text-sm text-slate-600">{item.label}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-white/40">{item.score}/42</span>
+                        <span className="text-xs text-slate-400">{item.score}/42</span>
                         <span className="px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
-                          style={{ background: s.bg }}>
+                          style={{ background: SCORE_GRADIENT[item.result.level] }}>
                           {item.result.level}
                         </span>
                       </div>
@@ -185,28 +197,28 @@ export default function HasilPage() {
 
             {/* Motivasi */}
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}
-              className="rounded-2xl p-6"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(12px)" }}>
-              <p className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">Catatan untuk Kamu</p>
-              <p className="text-sm leading-relaxed text-white/80">{MOTIVASI[worst]}</p>
+              className="bg-white rounded-2xl p-6"
+              style={{ boxShadow: "0 4px 20px rgba(0,48,135,0.08)", border: "1px solid rgba(0,48,135,0.08)" }}>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Catatan untuk Kamu</p>
+              <p className="text-sm leading-relaxed text-slate-600">{MOTIVASI[worst]}</p>
             </motion.div>
 
-            {/* UAJY info */}
+            {/* UAJY */}
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.55 }}
               className="rounded-2xl p-4 flex items-center gap-3"
-              style={{ background: "rgba(0,48,135,0.3)", border: "1px solid rgba(0,48,135,0.5)" }}>
+              style={{ background: "rgba(0,48,135,0.05)", border: "1px solid rgba(0,48,135,0.1)" }}>
               <div className="w-1 h-10 rounded-full flex-shrink-0" style={{ background: "linear-gradient(180deg,#003087,#FFD700)" }} />
               <div>
-                <div className="text-xs font-semibold text-white/80">Universitas Atma Jaya Yogyakarta</div>
-                <div className="text-xs text-white/40 italic">Program KKPKA 2024/2025</div>
+                <div className="text-xs font-semibold text-slate-600">Universitas Atma Jaya Yogyakarta</div>
+                <div className="text-xs text-slate-400 italic">Program KKPKA 2024/2025</div>
               </div>
             </motion.div>
 
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}
               whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
               onClick={() => { sessionStorage.clear(); router.push("/"); }}
-              className="w-full py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}>
+              className="w-full py-3 rounded-xl text-sm flex items-center justify-center gap-2 bg-white transition-colors hover:bg-slate-50"
+              style={{ border: "1.5px solid #e2e8f0", color: "#94a3b8" }}>
               <RotateCcw className="w-3.5 h-3.5" /> Isi Ulang Kuesioner
             </motion.button>
           </div>

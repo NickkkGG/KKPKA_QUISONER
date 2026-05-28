@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" className={inter.variable}>
       <body style={{ fontFamily: "var(--font-inter), sans-serif" }}>
         <Navbar />
-        <div className="pt-16">{children}</div>
+        <div>{children}</div>
       </body>
     </html>
   );
