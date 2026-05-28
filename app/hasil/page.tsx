@@ -137,7 +137,7 @@ export default function HasilPage() {
           style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 pt-20 pb-16 relative z-10">
+      <div className="max-w-5xl mx-auto px-4 pt-28 pb-16 relative z-10">
         {/* Header — di atas hero biru */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}

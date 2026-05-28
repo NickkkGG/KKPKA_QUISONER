@@ -6,15 +6,15 @@ import { ArrowLeft, Activity, Heart, Zap } from "lucide-react";
 import { QUESTIONS, ANSWERS } from "@/lib/dass42";
 
 const SCALE_CONFIG = {
-  depression: { label: "Depresi",   Icon: Heart,    gradient: "linear-gradient(135deg,#1e3a8a,#2563eb)" },
-  anxiety:    { label: "Kecemasan", Icon: Activity, gradient: "linear-gradient(135deg,#4c1d95,#7c3aed)" },
-  stress:     { label: "Stres",     Icon: Zap,      gradient: "linear-gradient(135deg,#0c4a6e,#0284c7)" },
+  depression: { label: "Depresi",   Icon: Heart,    color: "#93c5fd" },
+  anxiety:    { label: "Kecemasan", Icon: Activity, color: "#c4b5fd" },
+  stress:     { label: "Stres",     Icon: Zap,      color: "#7dd3fc" },
 };
 
 const slideVariants = {
-  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 60 : -60 }),
+  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 50 : -50 }),
   center: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 350, damping: 30 } },
-  exit:  (dir: number) => ({ opacity: 0, x: dir > 0 ? -60 : 60, transition: { duration: 0.2 } }),
+  exit:  (dir: number) => ({ opacity: 0, x: dir > 0 ? -50 : 50, transition: { duration: 0.2 } }),
 };
 
 export default function KuesionerPage() {
@@ -50,102 +50,99 @@ export default function KuesionerPage() {
   const startDot = Math.max(0, Math.min(current - 3, QUESTIONS.length - totalDots));
 
   return (
-    <main className="min-h-screen relative overflow-hidden" style={{ background: "#f0f4f8" }}>
-      {/* Hero blue header */}
-      <div className="absolute top-0 left-0 right-0 h-64 pointer-events-none"
-        style={{ background: "linear-gradient(135deg,#003087 0%,#1a4fa0 60%,#2563eb 100%)" }}>
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.4) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
-        <div className="absolute top-0 right-0 w-64 h-64 opacity-15"
-          style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
-      </div>
+    <main className="min-h-screen flex flex-col"
+      style={{ background: "linear-gradient(160deg,#003087 0%,#1a4fa0 40%,#2563eb 100%)" }}>
 
-      <div className="max-w-lg mx-auto px-4 pt-20 pb-12 relative z-10">
-        {/* Top bar — di atas hero biru */}
-        <div className="flex items-center justify-between mb-6">
-          <motion.button whileTap={{ scale: 0.9 }}
-            onClick={() => { if (current > 0 && !isAnimating) { setDirection(-1); setCurrent(c => c - 1); } }}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${current > 0 ? "bg-white/20 hover:bg-white/30 border border-white/20" : "opacity-0 pointer-events-none"}`}>
-            <ArrowLeft className="w-4 h-4 text-white" />
-          </motion.button>
+      {/* Grid pattern overlay */}
+      <div className="fixed inset-0 opacity-[0.07] pointer-events-none"
+        style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+      <div className="fixed top-0 right-0 w-96 h-96 opacity-10 pointer-events-none"
+        style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
 
-          {/* Dot progress */}
-          <div className="flex items-center gap-1.5">
-            {Array.from({ length: totalDots }, (_, i) => {
-              const idx = startDot + i;
-              const isActive = idx === current;
-              const isDone = idx < current;
-              return (
-                <motion.div key={idx}
-                  animate={{ width: isActive ? 24 : 6, opacity: isActive ? 1 : isDone ? 0.6 : 0.3 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="h-1.5 rounded-full"
-                  style={{ background: isActive ? "#FFD700" : isDone ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.3)" }} />
-              );
-            })}
+      <div className="relative z-10 flex-1 flex flex-col max-w-xl mx-auto w-full px-4 pt-24 pb-10">
+
+        {/* Progress + nav */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <motion.button whileTap={{ scale: 0.9 }}
+              onClick={() => { if (current > 0 && !isAnimating) { setDirection(-1); setCurrent(c => c - 1); } }}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${current > 0 ? "bg-white/15 hover:bg-white/25" : "opacity-0 pointer-events-none"}`}>
+              <ArrowLeft className="w-4 h-4 text-white" />
+            </motion.button>
+
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: totalDots }, (_, i) => {
+                const idx = startDot + i;
+                const isActive = idx === current;
+                const isDone = idx < current;
+                return (
+                  <motion.div key={idx}
+                    animate={{ width: isActive ? 20 : 6, opacity: isActive ? 1 : isDone ? 0.5 : 0.25 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="h-1.5 rounded-full"
+                    style={{ background: isActive ? "#FFD700" : "white" }} />
+                );
+              })}
+            </div>
+
+            <span className="text-xs font-medium text-white/60 tabular-nums w-8 text-right">
+              {current + 1}/{QUESTIONS.length}
+            </span>
           </div>
 
-          <span className="text-xs tabular-nums text-white/70 font-medium">
-            {current + 1}<span className="text-white/40">/{QUESTIONS.length}</span>
-          </span>
-        </div>
-
-        {/* Progress bar */}
-        <div className="h-1.5 rounded-full mb-6 overflow-hidden bg-white/20">
-          <motion.div className="h-full rounded-full"
-            style={{ background: "linear-gradient(90deg,white,#FFD700)" }}
-            animate={{ width: `${progress * 100}%` }} transition={{ duration: 0.5, ease: "easeOut" }} />
+          {/* Progress bar */}
+          <div className="h-1 rounded-full overflow-hidden bg-white/15">
+            <motion.div className="h-full rounded-full"
+              style={{ background: "linear-gradient(90deg,white,#FFD700)" }}
+              animate={{ width: `${progress * 100}%` }} transition={{ duration: 0.4, ease: "easeOut" }} />
+          </div>
         </div>
 
         {/* Scale badge */}
-        <motion.div key={q.scale} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-5"
-          style={{ background: "rgba(255,255,255,0.2)", color: "white", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(8px)" }}>
-          <Icon className="w-3.5 h-3.5" /> {sc.label}
+        <motion.div key={q.scale} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4 self-start"
+          style={{ background: "rgba(255,255,255,0.15)", color: sc.color, border: `1px solid ${sc.color}40` }}>
+          <Icon className="w-3 h-3" /> {sc.label}
         </motion.div>
 
-        {/* Question card — putih, elevated, kontras */}
-        <div className="relative mb-5" style={{ minHeight: 130 }}>
+        {/* Question card — putih, di dalam hero biru */}
+        <div className="relative mb-6" style={{ minHeight: 120 }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div key={current} custom={direction}
               variants={slideVariants} initial="enter" animate="center" exit="exit"
-              className="absolute inset-0 rounded-3xl p-6 bg-white"
-              style={{ boxShadow: "0 20px 60px rgba(0,48,135,0.15), 0 4px 16px rgba(0,0,0,0.08)" }}>
-              {/* Top accent */}
-              <div className="h-1 w-12 rounded-full mb-4" style={{ background: sc.gradient }} />
+              className="absolute inset-0 bg-white rounded-2xl p-6"
+              style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.25)" }}>
+              <div className="w-8 h-0.5 rounded-full mb-3" style={{ background: `linear-gradient(90deg,#003087,${sc.color})` }} />
               <p className="text-slate-800 text-base sm:text-lg font-semibold leading-relaxed">{q.text}</p>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Answer buttons — kartu putih dengan shadow */}
-        <div className="space-y-3">
+        {/* Answer buttons — biru gelap semi-transparan, kontras dengan hero */}
+        <div className="space-y-2.5">
           {ANSWERS.map((ans, i) => (
             <motion.button key={ans.value}
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06, type: "spring", stiffness: 400, damping: 30 }}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
               whileTap={{ scale: 0.98 }} onClick={() => handleAnswer(ans.value)}
-              className="w-full rounded-2xl px-4 py-3.5 text-left flex items-center gap-3.5 transition-all"
+              className="w-full rounded-xl px-4 py-3.5 text-left flex items-center gap-3 transition-all"
               style={selected === ans.value ? {
                 background: "white",
-                border: "2px solid #003087",
-                boxShadow: "0 4px 20px rgba(0,48,135,0.15)",
-                transform: "translateX(6px)"
+                border: "2px solid #FFD700",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+                transform: "translateX(4px)"
               } : {
-                background: "white",
-                border: "1.5px solid #e2e8f0",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+                background: "rgba(0,0,0,0.2)",
+                border: "1px solid rgba(255,255,255,0.15)",
               }}>
-              <motion.span animate={selected === ans.value ? { scale: [1, 1.2, 1] } : { scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0"
+              <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all"
                 style={selected === ans.value
                   ? { background: "#003087", color: "white" }
-                  : { background: "#f1f5f9", color: "#94a3b8" }}>
+                  : { background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)" }}>
                 {ans.value}
-              </motion.span>
-              <span className="text-sm font-medium"
-                style={{ color: selected === ans.value ? "#003087" : "#475569" }}>
+              </span>
+              <span className="text-sm font-medium transition-colors"
+                style={{ color: selected === ans.value ? "#003087" : "rgba(255,255,255,0.9)" }}>
                 {ans.label}
               </span>
               {selected === ans.value && (

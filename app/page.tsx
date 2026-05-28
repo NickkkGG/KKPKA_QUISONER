@@ -34,14 +34,7 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-80 h-80 opacity-15 pointer-events-none"
           style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-20 pb-16 text-center">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-6"
-            style={{ background: "rgba(255,215,0,0.2)", color: "#FFD700", border: "1px solid rgba(255,215,0,0.35)" }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-            Program KKPKA 2024/2025
-          </motion.div>
-
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-16 text-center">
           <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
             Kuesioner Kesehatan Mental<br />
