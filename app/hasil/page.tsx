@@ -144,13 +144,17 @@ export default function HasilPage() {
           <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
             className="text-2xl sm:text-3xl font-bold text-white mb-1">Hasil Kuesioner DASS-42</motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="text-blue-200 text-sm">{data.nama} · {data.prodi}</motion.p>
-          {saved && (
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}
-              className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs bg-white/20 text-white border border-white/30">
+            className="text-blue-200 text-sm mb-4">{data.nama} · {data.prodi}</motion.p>
+          {/* Reserve space selalu, badge fade in smooth */}
+          <div className="h-7 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: saved ? 1 : 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-white/20 text-white border border-white/30">
               <div className="w-1.5 h-1.5 rounded-full bg-green-300" /> Data tersimpan
             </motion.div>
-          )}
+          </div>
         </div>
       </div>
 
