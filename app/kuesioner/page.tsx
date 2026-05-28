@@ -50,13 +50,13 @@ export default function KuesionerPage() {
   const startDot = Math.max(0, Math.min(current - 3, QUESTIONS.length - totalDots));
 
   return (
-    <main className="min-h-screen flex flex-col"
-      style={{ background: "linear-gradient(160deg,#003087 0%,#1a4fa0 40%,#2563eb 100%)" }}>
+    <main className="flex flex-col relative overflow-hidden"
+      style={{ minHeight: "100dvh", background: "linear-gradient(160deg,#003087 0%,#1a4fa0 40%,#2563eb 100%)" }}>
 
       {/* Grid pattern overlay */}
-      <div className="fixed inset-0 opacity-[0.07] pointer-events-none"
+      <div className="absolute inset-0 opacity-[0.07] pointer-events-none"
         style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
-      <div className="fixed top-0 right-0 w-96 h-96 opacity-10 pointer-events-none"
+      <div className="absolute top-0 right-0 w-96 h-96 opacity-10 pointer-events-none"
         style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
 
       <div className="relative z-10 flex-1 flex flex-col max-w-xl mx-auto w-full px-4 pt-24 pb-10">
