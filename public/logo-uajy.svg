@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Shield background -->
+  <path d="M60 8 L18 26 L18 62 C18 88 36 108 60 116 C84 108 102 88 102 62 L102 26 Z" fill="#003087"/>
+  <!-- Shield inner border -->
+  <path d="M60 14 L24 30 L24 62 C24 85 40 103 60 110 C80 103 96 85 96 62 L96 30 Z" fill="none" stroke="#FFD700" stroke-width="2"/>
+  <!-- Cross vertical -->
+  <rect x="55" y="28" width="10" height="52" rx="2" fill="white"/>
+  <!-- Cross horizontal -->
+  <rect x="34" y="49" width="52" height="10" rx="2" fill="white"/>
+  <!-- Gold accent top -->
+  <path d="M60 8 L18 26 L18 30 L60 12 L102 30 L102 26 Z" fill="#FFD700"/>
+</svg>
