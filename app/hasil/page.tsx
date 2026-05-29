@@ -114,7 +114,7 @@ export default function HasilPage() {
   }, [router]);
 
   if (!data || !scores) return (
-    <main className="min-h-screen flex items-center justify-center" style={{ background: "#f0f4f8" }}>
+    <main className="flex items-center justify-center" style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent" />
     </main>
@@ -127,7 +127,7 @@ export default function HasilPage() {
   const worst = [dResult.level, kResult.level, sResult.level].reduce((a, b) => order.indexOf(a) > order.indexOf(b) ? a : b);
 
   return (
-    <main className="min-h-screen" style={{ background: "#f0f4f8" }}>
+    <main style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
       {/* Hero — section biasa, header di dalamnya */}
       <div className="relative" style={{ background: "linear-gradient(135deg,#003087 0%,#1a4fa0 60%,#2563eb 100%)" }}>
         <div className="absolute inset-0 opacity-10 pointer-events-none"

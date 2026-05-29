@@ -40,7 +40,7 @@ export default function Home() {
   const prodiList = form.jenjang ? PRODI_BY_JENJANG[form.jenjang] : [];
 
   return (
-    <main className="min-h-screen" style={{ background: "#f0f4f8" }}>
+    <main style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
       {/* Hero */}
       <div className="relative" style={{ background: "linear-gradient(135deg,#003087 0%,#1a4fa0 60%,#2563eb 100%)" }}>
         <div className="absolute inset-0 opacity-10 pointer-events-none"
