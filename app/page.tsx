@@ -34,7 +34,7 @@ export default function Home() {
     }
     if (!/^\S+@\S+\.\S+$/.test(email)) { setError("Format email tidak valid."); return; }
     sessionStorage.setItem("responden", JSON.stringify({ nama: nama.trim(), npm: npm.trim(), email: email.trim(), usia, jenjang, prodi }));
-    router.push("/kuesioner");
+    router.push("/instruksi");
   }
 
   const prodiList = form.jenjang ? PRODI_BY_JENJANG[form.jenjang] : [];
