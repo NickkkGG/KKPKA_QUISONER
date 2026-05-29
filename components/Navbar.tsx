@@ -1,14 +1,9 @@
 "use client";
 import Image from "next/image";
-import { motion } from "framer-motion";
 
 export default function Navbar() {
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="fixed top-0 left-0 right-0 z-50"
+    <nav className="fixed top-0 left-0 right-0 z-50"
       style={{ background: "#003087", boxShadow: "0 2px 16px rgba(0,48,135,0.4)" }}>
       <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Left: Logo + nama universitas */}
@@ -42,6 +37,6 @@ export default function Navbar() {
 
       {/* Gold bottom line */}
       <div className="h-0.5 w-full" style={{ background: "#FFD700" }} />
-    </motion.nav>
+    </nav>
   );
 }
