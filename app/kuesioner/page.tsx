@@ -2,14 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Activity, Heart, Zap } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { QUESTIONS, ANSWERS } from "@/lib/dass42";
-
-const SCALE_CONFIG = {
-  depression: { label: "Depresi",   Icon: Heart,    color: "#93c5fd" },
-  anxiety:    { label: "Kecemasan", Icon: Activity, color: "#c4b5fd" },
-  stress:     { label: "Stres",     Icon: Zap,      color: "#7dd3fc" },
-};
 
 const slideVariants = {
   enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 50 : -50 }),
@@ -44,8 +38,6 @@ export default function KuesionerPage() {
 
   const progress = (current + 1) / QUESTIONS.length;
   const q = QUESTIONS[current];
-  const sc = SCALE_CONFIG[q.scale as keyof typeof SCALE_CONFIG];
-  const { Icon } = sc;
   const totalDots = Math.min(QUESTIONS.length, 7);
   const startDot = Math.max(0, Math.min(current - 3, QUESTIONS.length - totalDots));
 
@@ -98,21 +90,13 @@ export default function KuesionerPage() {
           </div>
         </div>
 
-        {/* Scale badge */}
-        <motion.div key={q.scale} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4 self-start"
-          style={{ background: "rgba(255,255,255,0.15)", color: sc.color, border: `1px solid ${sc.color}40` }}>
-          <Icon className="w-3 h-3" /> {sc.label}
-        </motion.div>
-
-        {/* Question card — putih, di dalam hero biru */}
+        {/* Question card */}
         <div className="relative mb-6" style={{ minHeight: 120 }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div key={current} custom={direction}
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="absolute inset-0 bg-white rounded-2xl p-6"
               style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.25)" }}>
-              <div className="w-8 h-0.5 rounded-full mb-3" style={{ background: `linear-gradient(90deg,#003087,${sc.color})` }} />
               <p className="text-slate-800 text-base sm:text-lg font-semibold leading-relaxed">{q.text}</p>
             </motion.div>
           </AnimatePresence>
