@@ -135,17 +135,14 @@ export default function HasilPage() {
         <div className="absolute top-0 right-0 w-64 h-64 opacity-15 pointer-events-none"
           style={{ background: "radial-gradient(circle,#FFD700 0%,transparent 70%)" }} />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 pb-14 text-center">
-          <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-white/20 border border-white/30">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 pb-16 text-center">
+          <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-white/20 border border-white/30">
             <CheckCircle className="w-7 h-7 text-white" />
-          </motion.div>
+          </div>
           <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
             className="text-2xl sm:text-3xl font-bold text-white mb-1">Hasil Kuesioner DASS-42</motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="text-blue-200 text-sm mb-4">{data.nama} · {data.prodi}</motion.p>
-          {/* Reserve space selalu, badge fade in smooth */}
+            className="text-blue-200 text-sm mb-5">{data.nama} · {data.prodi}</motion.p>
           <div className="h-7 flex items-center justify-center">
             <motion.div
               initial={{ opacity: 0 }}

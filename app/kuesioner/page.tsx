@@ -121,14 +121,17 @@ export default function KuesionerPage() {
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div key={current} custom={direction}
                 variants={slideVariants} initial="enter" animate="center" exit="exit"
-                className="absolute inset-0 rounded-3xl flex items-center justify-center p-7"
+                className="absolute inset-0 rounded-3xl flex items-center justify-center p-7 overflow-hidden"
                 style={{
                   background: "linear-gradient(145deg, #ffffff 0%, #f0f6ff 100%)",
                   boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8)"
                 }}>
-                {/* Subtle corner accent */}
+                {/* Subtle corner accent top-right */}
                 <div className="absolute top-0 right-0 w-16 h-16 rounded-tr-3xl rounded-bl-full opacity-30 pointer-events-none"
                   style={{ background: "linear-gradient(135deg,#003087,transparent)" }} />
+                {/* Gold accent bottom-left */}
+                <div className="absolute bottom-0 left-0 w-16 h-16 rounded-bl-3xl rounded-tr-full opacity-30 pointer-events-none"
+                  style={{ background: "linear-gradient(315deg,#FFD700,transparent)" }} />
                 <p className="text-slate-800 text-base sm:text-lg font-semibold leading-relaxed text-center relative z-10">
                   {QUESTIONS[current].text}
                 </p>
