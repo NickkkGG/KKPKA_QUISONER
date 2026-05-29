@@ -15,12 +15,20 @@
 
 * { box-sizing: border-box; }
 
+/* iOS Safari viewport fix */
+html {
+  height: -webkit-fill-available;
+  height: 100%;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: 'Inter', -apple-system, sans-serif;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 /* Glass morphism — light mode */
