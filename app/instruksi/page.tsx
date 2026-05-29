@@ -4,13 +4,18 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Clock, Heart, Shield, AlertCircle } from "lucide-react";
 
-const TIMER_SECONDS = 30;
+const TIMER_SECONDS = 5;
 
 const INSTRUCTIONS = [
   {
     icon: <Heart className="w-5 h-5" style={{ color: "#003087" }} />,
     title: "Jawab dengan Jujur",
     desc: "Tidak ada jawaban benar atau salah. Jawablah sesuai kondisi yang kamu rasakan dalam beberapa minggu terakhir.",
+  },
+  {
+    icon: <AlertCircle className="w-5 h-5" style={{ color: "#003087" }} />,
+    title: "Kondisi Saat Ini",
+    desc: "Jawablah berdasarkan perasaan dan kondisi yang kamu alami saat ini, bukan kondisi ideal yang kamu inginkan.",
   },
   {
     icon: <Clock className="w-5 h-5" style={{ color: "#003087" }} />,
@@ -21,11 +26,6 @@ const INSTRUCTIONS = [
     icon: <Shield className="w-5 h-5" style={{ color: "#003087" }} />,
     title: "Data Bersifat Rahasia",
     desc: "Semua jawaban hanya digunakan untuk keperluan akademik KKPKA dan tidak akan disebarluaskan.",
-  },
-  {
-    icon: <AlertCircle className="w-5 h-5" style={{ color: "#003087" }} />,
-    title: "Kondisi Saat Ini",
-    desc: "Jawablah berdasarkan perasaan dan kondisi yang kamu alami saat ini, bukan kondisi ideal yang kamu inginkan.",
   },
 ];
 
