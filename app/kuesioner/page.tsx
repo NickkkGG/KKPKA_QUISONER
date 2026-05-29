@@ -58,8 +58,9 @@ export default function KuesionerPage() {
           <div className="flex items-center justify-between mb-3">
             <motion.button whileTap={{ scale: 0.9 }}
               onClick={() => { if (current > 0 && !isAnimating) { setDirection(-1); setCurrent(c => c - 1); } }}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${current > 0 ? "bg-white/15 hover:bg-white/25" : "opacity-0 pointer-events-none"}`}>
-              <ArrowLeft className="w-4 h-4 text-white" />
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${current > 0 ? "shadow-md hover:shadow-lg" : "opacity-0 pointer-events-none"}`}
+              style={{ background: "white" }}>
+              <ArrowLeft className="w-4 h-4" style={{ color: "#003087" }} />
             </motion.button>
 
             <div className="flex items-center gap-1.5">
