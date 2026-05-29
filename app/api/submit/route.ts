@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { calculateScores, interpretDepresi, interpretKecemasan, interpretStress } from "@/lib/dass42";
 
 export async function POST(req: NextRequest) {
-  const { nama, prodi, answers } = await req.json();
+  const { nama, npm, email, usia, jenjang, prodi, answers } = await req.json();
 
-  if (!nama || !prodi || !Array.isArray(answers) || answers.length !== 42) {
+  if (!nama || !npm || !email || !usia || !jenjang || !prodi || !Array.isArray(answers) || answers.length !== 42) {
     return NextResponse.json({ error: "Data tidak valid" }, { status: 400 });
   }
 
   const { depresi, kecemasan, stress } = calculateScores(answers);
 
-  const { error } = await supabase.from("responden").insert({
-    nama,
-    prodi,
-    answers,
+  const { error } = await supabaseAdmin.from("responden").insert({
+    nama, npm, email, usia: Number(usia), jenjang, prodi, answers,
     skala_depresi: depresi,
     interpretasi_depresi: interpretDepresi(depresi).level,
     skala_kecemasan: kecemasan,

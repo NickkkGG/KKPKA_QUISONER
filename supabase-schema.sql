@@ -1,8 +1,21 @@
 -- Jalankan di Supabase SQL Editor
+-- Jika tabel sudah ada, gunakan ALTER TABLE:
 
+ALTER TABLE responden
+  ADD COLUMN IF NOT EXISTS npm text,
+  ADD COLUMN IF NOT EXISTS email text,
+  ADD COLUMN IF NOT EXISTS usia integer,
+  ADD COLUMN IF NOT EXISTS jenjang text;
+
+-- Jika belum ada tabel sama sekali, buat baru:
+/*
 create table responden (
   id uuid default gen_random_uuid() primary key,
   nama text not null,
+  npm text,
+  email text,
+  usia integer,
+  jenjang text,
   prodi text not null,
   answers jsonb not null,
   skala_depresi integer not null,
@@ -14,11 +27,6 @@ create table responden (
   created_at timestamptz default now()
 );
 
--- Hanya admin (service role) yang bisa baca, anon hanya bisa insert
 alter table responden enable row level security;
-
-create policy "anon insert only" on responden
-  for insert to anon with check (true);
-
-create policy "admin read" on responden
-  for select using (auth.role() = 'service_role');
+create policy "anon insert only" on responden for insert to anon with check (true);
+*/

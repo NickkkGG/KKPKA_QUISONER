@@ -50,22 +50,13 @@ export const ANSWERS = [
   { value: 3, label: "Hampir Selalu" },
 ];
 
-export const PRODI_LIST = [
-  "Teknik Informatika",
-  "Sistem Informasi",
-  "Teknik Elektro",
-  "Teknik Mesin",
-  "Teknik Sipil",
-  "Manajemen",
-  "Akuntansi",
-  "Psikologi",
-  "Hukum",
-  "Kedokteran",
-  "Keperawatan",
-  "Farmasi",
-  "Pendidikan",
-  "Lainnya",
-];
+export const JENJANG_LIST = ["S1", "S2", "S3"];
+
+export const PRODI_BY_JENJANG: Record<string, string[]> = {
+  S1: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Sistem Informasi","Ilmu Hukum","Ilmu Komunikasi","Sosiologi","Manajemen","Akuntansi","Kedokteran"],
+  S2: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Ilmu Hukum","Ilmu Komunikasi","Manajemen"],
+  S3: ["Arsitektur","Teknik Sipil","Informatika","Ilmu Hukum"],
+};
 
 export function calculateScores(answers: number[]) {
   const depresiIdx = [2, 4, 9, 12, 15, 16, 20, 23, 25, 30, 33, 36, 37, 41];
