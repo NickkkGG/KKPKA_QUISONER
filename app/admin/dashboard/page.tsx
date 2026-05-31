@@ -36,18 +36,115 @@ export default function DashboardPage() {
   }, [router]);
 
   async function handleExport() {
-    const { utils, writeFile } = await import("xlsx");
-    const rows = data.map((r) => ({
-      Nama: r.nama, NPM: r.npm, Email: r.email, Usia: r.usia, Jenjang: r.jenjang, "Program Studi": r.prodi,
-      "Skala Depresi": r.skala_depresi, "Interpretasi Depresi": r.interpretasi_depresi,
-      "Skala Kecemasan": r.skala_kecemasan, "Interpretasi Kecemasan": r.interpretasi_kecemasan,
-      "Skala Stress": r.skala_stress, "Interpretasi Stress": r.interpretasi_stress,
-      "Tanggal Pengisian": new Date(r.created_at).toLocaleString("id-ID"),
-    }));
-    const ws = utils.json_to_sheet(rows);
-    const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, "Data DASS-42");
-    writeFile(wb, `Data_DASS42_KKPKA_${new Date().toISOString().slice(0,10)}.xlsx`);
+    const ExcelJS = (await import("exceljs")).default;
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "KKPKA UAJY";
+
+    const NAVY = "FF003087";
+    const GOLD = "FFFFD700";
+    const LEVEL_FILL: Record<string, string> = {
+      Normal: "FFD1FAE5", Ringan: "FFFEF9C3", Sedang: "FFFFEDD5",
+      Parah: "FFFEE2E2", "Sangat Parah": "FFFECACA",
+    };
+    const LEVEL_FONT: Record<string, string> = {
+      Normal: "FF166534", Ringan: "FF854D0E", Sedang: "FF9A3412",
+      Parah: "FFB91C1C", "Sangat Parah": "FF7F1D1D",
+    };
+
+    // ===== Sheet 1: Data Responden =====
+    const ws = wb.addWorksheet("Data Responden", { views: [{ state: "frozen", ySplit: 1 }] });
+    const cols = [
+      { header: "No", key: "no", width: 5 },
+      { header: "Nama", key: "nama", width: 24 },
+      { header: "NPM", key: "npm", width: 14 },
+      { header: "Email", key: "email", width: 26 },
+      { header: "Usia", key: "usia", width: 6 },
+      { header: "Jenjang", key: "jenjang", width: 9 },
+      { header: "Program Studi", key: "prodi", width: 20 },
+      { header: "Skor Depresi", key: "sd", width: 12 },
+      { header: "Interpretasi Depresi", key: "id", width: 18 },
+      { header: "Skor Kecemasan", key: "sk", width: 13 },
+      { header: "Interpretasi Kecemasan", key: "ik", width: 20 },
+      { header: "Skor Stres", key: "ss", width: 11 },
+      { header: "Interpretasi Stres", key: "is", width: 18 },
+      { header: "Tanggal Pengisian", key: "tgl", width: 20 },
+    ];
+    ws.columns = cols;
+
+    // Header style
+    ws.getRow(1).eachCell((cell) => {
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: NAVY } };
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
+      cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+      cell.border = { bottom: { style: "medium", color: { argb: GOLD } } };
+    });
+    ws.getRow(1).height = 28;
+
+    // Data rows
+    data.forEach((r, i) => {
+      const row = ws.addRow({
+        no: i + 1, nama: r.nama, npm: r.npm, email: r.email, usia: r.usia,
+        jenjang: r.jenjang, prodi: r.prodi,
+        sd: r.skala_depresi, id: r.interpretasi_depresi,
+        sk: r.skala_kecemasan, ik: r.interpretasi_kecemasan,
+        ss: r.skala_stress, is: r.interpretasi_stress,
+        tgl: new Date(r.created_at).toLocaleString("id-ID"),
+      });
+      // Warnai sel interpretasi
+      [["id", r.interpretasi_depresi], ["ik", r.interpretasi_kecemasan], ["is", r.interpretasi_stress]].forEach(([key, lvl]) => {
+        const cell = row.getCell(key as string);
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: LEVEL_FILL[lvl] ?? "FFFFFFFF" } };
+        cell.font = { bold: true, color: { argb: LEVEL_FONT[lvl] ?? "FF000000" } };
+        cell.alignment = { horizontal: "center" };
+      });
+      ["no", "usia", "jenjang", "sd", "sk", "ss"].forEach(k => row.getCell(k).alignment = { horizontal: "center" });
+      if (i % 2 === 1) {
+        ["no","nama","npm","email","usia","jenjang","prodi","sd","sk","ss","tgl"].forEach(k => {
+          row.getCell(k).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF1F5F9" } };
+        });
+      }
+    });
+
+    // ===== Sheet 2: Pedoman Interpretasi =====
+    const ws2 = wb.addWorksheet("Pedoman Interpretasi");
+    ws2.columns = [{ width: 22 }, { width: 16 }, { width: 16 }, { width: 16 }];
+
+    ws2.addRow(["PEDOMAN PENILAIAN DASS-42"]).font = { bold: true, size: 14, color: { argb: NAVY } };
+    ws2.addRow([]);
+    ws2.addRow(["Skala Jawaban"]).font = { bold: true, size: 12 };
+    [["Tidak ada / tidak pernah", 0], ["Kadang-kadang", 1], ["Sering", 2], ["Sangat sesuai / hampir setiap saat", 3]]
+      .forEach(r => ws2.addRow(r));
+    ws2.addRow([]);
+
+    const hdr = ws2.addRow(["Tingkat", "Depresi", "Kecemasan", "Stres"]);
+    hdr.eachCell(c => {
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: NAVY } };
+      c.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      c.alignment = { horizontal: "center" };
+    });
+    const thresholds = [
+      ["Normal", "0 – 9", "0 – 7", "0 – 14"],
+      ["Ringan", "10 – 13", "8 – 9", "15 – 18"],
+      ["Sedang", "14 – 20", "10 – 14", "19 – 25"],
+      ["Parah", "21 – 27", "15 – 19", "26 – 33"],
+      ["Sangat Parah", "> 28", "> 20", "> 34"],
+    ];
+    thresholds.forEach(t => {
+      const row = ws2.addRow(t);
+      row.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: LEVEL_FILL[t[0]] } };
+      row.getCell(1).font = { bold: true, color: { argb: LEVEL_FONT[t[0]] } };
+      [2,3,4].forEach(i => row.getCell(i).alignment = { horizontal: "center" });
+    });
+
+    // Download
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Data_DASS42_KKPKA_${new Date().toISOString().slice(0,10)}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function handleLogout() {
