@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Lock, ShieldCheck } from "lucide-react";
+import { Lock, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -11,6 +11,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   async function handleLogin() {
     setLoading(true); setError("");
@@ -85,16 +86,22 @@ export default function AdminLoginPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-xs font-semibold mb-1.5 block text-slate-500 uppercase tracking-wider">Password</label>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                    onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-                    placeholder="••••••••"
-                    className="w-full rounded-xl px-4 py-3 text-slate-800 placeholder-slate-300 focus:outline-none text-sm transition-all"
-                    style={{
-                      background: "#f8fafc",
-                      border: focused ? "1.5px solid #003087" : "1.5px solid #e2e8f0",
-                      boxShadow: focused ? "0 0 0 3px rgba(0,48,135,0.08)" : "none"
-                    }} />
+                  <div className="relative">
+                    <input type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                      onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+                      placeholder="••••••••"
+                      className="w-full rounded-xl px-4 py-3 pr-11 text-slate-800 placeholder-slate-300 focus:outline-none text-sm transition-all"
+                      style={{
+                        background: "#f8fafc",
+                        border: focused ? "1.5px solid #003087" : "1.5px solid #e2e8f0",
+                        boxShadow: focused ? "0 0 0 3px rgba(0,48,135,0.08)" : "none"
+                      }} />
+                    <button type="button" onClick={() => setShowPw(s => !s)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                      {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 {error && <motion.p initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-red-500 text-xs">{error}</motion.p>}
                 <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}

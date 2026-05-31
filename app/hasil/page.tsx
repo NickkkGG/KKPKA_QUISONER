@@ -98,6 +98,7 @@ export default function HasilPage() {
   const [data, setData] = useState<{ nama: string; prodi: string } | null>(null);
   const [scores, setScores] = useState<{ depresi: number; kecemasan: number; stress: number } | null>(null);
   const [saved, setSaved] = useState(false);
+  const submitted = useRef(false);
 
   useEffect(() => {
     const responden = sessionStorage.getItem("responden");
@@ -107,6 +108,8 @@ export default function HasilPage() {
     const answers: number[] = JSON.parse(answersRaw);
     setData(parsed);
     setScores(calculateScores(answers));
+    if (submitted.current) return;
+    submitted.current = true;
     fetch("/api/submit", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...parsed, answers }),
