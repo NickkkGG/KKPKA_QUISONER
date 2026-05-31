@@ -4,9 +4,13 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Download, LogOut, Users, AlertTriangle, Activity, Filter, ArrowUpDown } from "lucide-react";
+import { ANSWERS, QUESTIONS } from "@/lib/dass42";
+
+const ANSWER_LABEL: Record<number, string> = Object.fromEntries(ANSWERS.map(a => [a.value, a.label]));
 
 type Responden = {
   id: string; nama: string; npm: string; email: string; usia: number; jenjang: string; prodi: string;
+  answers: number[];
   skala_depresi: number; interpretasi_depresi: string;
   skala_kecemasan: number; interpretasi_kecemasan: string;
   skala_stress: number; interpretasi_stress: string;
@@ -28,10 +32,16 @@ export default function DashboardPage() {
   const [search, setSearch] = useState("");
   const [riskFilter, setRiskFilter] = useState("all");
   const [sortBy, setSortBy] = useState("terbaru");
+  const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
     fetch("/api/admin-data")
-      .then((r) => { if (r.status === 401) { router.replace("/admin"); return null; } return r.json(); })
+      .then(async (r) => {
+        if (r.status === 401) { router.replace("/admin"); return null; }
+        const d = await r.json();
+        if (!r.ok) { setErrMsg(d.error ?? "Gagal memuat data"); setLoading(false); return null; }
+        return d;
+      })
       .then((d) => { if (d) { setData(Array.isArray(d) ? d : []); setLoading(false); } });
   }, [router]);
 
@@ -61,6 +71,7 @@ export default function DashboardPage() {
       { header: "Usia", key: "usia", width: 6 },
       { header: "Jenjang", key: "jenjang", width: 9 },
       { header: "Program Studi", key: "prodi", width: 20 },
+      ...Array.from({ length: 42 }, (_, i) => ({ header: `Q${i + 1}`, key: `q${i + 1}`, width: 16 })),
       { header: "Skor Depresi", key: "sd", width: 12 },
       { header: "Interpretasi Depresi", key: "id", width: 18 },
       { header: "Skor Kecemasan", key: "sk", width: 13 },
@@ -82,9 +93,13 @@ export default function DashboardPage() {
 
     // Data rows
     data.forEach((r, i) => {
+      const qAnswers = Object.fromEntries(
+        (r.answers ?? []).map((v, idx) => [`q${idx + 1}`, ANSWER_LABEL[v] ?? "-"])
+      );
       const row = ws.addRow({
         no: i + 1, nama: r.nama, npm: r.npm, email: r.email, usia: r.usia,
         jenjang: r.jenjang, prodi: r.prodi,
+        ...qAnswers,
         sd: r.skala_depresi, id: r.interpretasi_depresi,
         sk: r.skala_kecemasan, ik: r.interpretasi_kecemasan,
         ss: r.skala_stress, is: r.interpretasi_stress,
@@ -97,9 +112,10 @@ export default function DashboardPage() {
         cell.font = { bold: true, color: { argb: LEVEL_FONT[lvl] ?? "FF000000" } };
         cell.alignment = { horizontal: "center" };
       });
-      ["no", "usia", "jenjang", "sd", "sk", "ss"].forEach(k => row.getCell(k).alignment = { horizontal: "center" });
+      const qKeys = Array.from({ length: 42 }, (_, j) => `q${j + 1}`);
+      ["no", "usia", "jenjang", "sd", "sk", "ss", ...qKeys].forEach(k => row.getCell(k).alignment = { horizontal: "center" });
       if (i % 2 === 1) {
-        ["no","nama","npm","email","usia","jenjang","prodi","sd","sk","ss","tgl"].forEach(k => {
+        ["no","nama","npm","email","usia","jenjang","prodi","sd","sk","ss","tgl",...qKeys].forEach(k => {
           row.getCell(k).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF1F5F9" } };
         });
       }
@@ -134,6 +150,21 @@ export default function DashboardPage() {
       row.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: LEVEL_FILL[t[0]] } };
       row.getCell(1).font = { bold: true, color: { argb: LEVEL_FONT[t[0]] } };
       [2,3,4].forEach(i => row.getCell(i).alignment = { horizontal: "center" });
+    });
+
+    // Referensi pertanyaan Q1-Q42
+    ws2.addRow([]);
+    ws2.addRow(["Daftar Pertanyaan"]).font = { bold: true, size: 12 };
+    const qh = ws2.addRow(["Kode", "Pertanyaan"]);
+    qh.eachCell(c => {
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: NAVY } };
+      c.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    });
+    ws2.getColumn(2).width = 70;
+    QUESTIONS.forEach((q, i) => {
+      const row = ws2.addRow([`Q${i + 1}`, q.text]);
+      row.getCell(1).font = { bold: true };
+      row.getCell(2).alignment = { wrapText: true };
     });
 
     // Download
@@ -259,6 +290,8 @@ export default function DashboardPage() {
         <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "1px solid #e2e8f0", boxShadow: "0 4px 24px rgba(0,48,135,0.08)" }}>
           {loading ? (
             <div className="p-12 text-center text-slate-400">Memuat data...</div>
+          ) : errMsg ? (
+            <div className="p-12 text-center text-red-500 text-sm">Error: {errMsg}</div>
           ) : filtered.length === 0 ? (
             <div className="p-12 text-center text-slate-400">Belum ada data responden.</div>
           ) : (
