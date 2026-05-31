@@ -1,7 +1,11 @@
 "use client";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50"
       style={{ background: "#003087", boxShadow: "0 2px 16px rgba(0,48,135,0.4)" }}>

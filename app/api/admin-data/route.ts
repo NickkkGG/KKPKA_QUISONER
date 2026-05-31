@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  if (req.cookies.get("admin_auth")?.value !== "1") {
+  if (!verifyToken(req.cookies.get("admin_session")?.value)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { data, error } = await supabaseAdmin
