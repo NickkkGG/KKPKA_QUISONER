@@ -9,23 +9,33 @@ const TIMER_SECONDS = 5;
 const INSTRUCTIONS = [
   {
     icon: <Heart className="w-5 h-5" style={{ color: "#003087" }} />,
-    title: "Jawab dengan Jujur",
-    desc: "Tidak ada jawaban benar atau salah. Jawablah sesuai kondisi yang kamu rasakan dalam beberapa minggu terakhir.",
-  },
-  {
-    icon: <AlertCircle className="w-5 h-5" style={{ color: "#003087" }} />,
-    title: "Kondisi Saat Ini",
-    desc: "Jawablah berdasarkan perasaan dan kondisi yang kamu alami saat ini, bukan kondisi ideal yang kamu inginkan.",
+    title: "Jawablah dengan Jujur",
+    desc: "Tidak ada jawaban benar atau salah. Pilih jawaban yang paling menggambarkan kondisi yang benar-benar Anda alami.",
   },
   {
     icon: <Clock className="w-5 h-5" style={{ color: "#003087" }} />,
-    title: "Cara Menjawab",
-    desc: "Pilih salah satu dari 4 pilihan: Tidak Pernah (0), Kadang-kadang (1), Sering (2), atau Hampir Selalu (3).",
+    title: "Fokus pada Pengalaman 1 Minggu Terakhir",
+    desc: "Jawablah berdasarkan pengalaman, perasaan, dan kondisi yang Anda rasakan selama satu minggu terakhir, bukan berdasarkan kondisi yang Anda harapkan atau inginkan.",
+  },
+  {
+    icon: <CheckCircle className="w-5 h-5" style={{ color: "#003087" }} />,
+    title: "Pilih Jawaban yang Paling Sesuai",
+    desc: "Setiap pernyataan memiliki empat pilihan jawaban. Pilih satu jawaban yang paling menggambarkan pengalaman Anda.",
+  },
+  {
+    icon: <AlertCircle className="w-5 h-5" style={{ color: "#003087" }} />,
+    title: "Tidak Ada Penilaian Baik atau Buruk",
+    desc: "Hasil kuesioner ini bukan untuk menilai kemampuan, kepribadian, maupun kinerja Anda. Jawaban yang jujur akan membantu memberikan gambaran yang lebih akurat mengenai kondisi diri.",
   },
   {
     icon: <Shield className="w-5 h-5" style={{ color: "#003087" }} />,
-    title: "Data Bersifat Rahasia",
-    desc: "Semua jawaban hanya digunakan untuk keperluan akademik KKPKA dan tidak akan disebarluaskan.",
+    title: "Kerahasiaan Data",
+    desc: "Data dan jawaban yang terekam akan dijaga kerahasiaannya serta hanya digunakan untuk keperluan pengembangan layanan, edukasi, dan pemetaan kebutuhan kesehatan mental di lingkungan Universitas Atma Jaya Yogyakarta.",
+  },
+  {
+    icon: <AlertCircle className="w-5 h-5" style={{ color: "#003087" }} />,
+    title: "Penting untuk Diketahui",
+    desc: "DASS-42 merupakan alat skrining dan refleksi diri, bukan alat diagnosis klinis. Hasil yang diperoleh tidak dapat digunakan untuk menentukan diagnosis gangguan psikologis dan tidak menggantikan pemeriksaan oleh psikolog atau psikiater.",
   },
 ];
 
