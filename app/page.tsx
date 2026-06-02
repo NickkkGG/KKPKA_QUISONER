@@ -51,7 +51,7 @@ export default function Home() {
           <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
             Kuesioner Kesehatan Mental<br />
-            <span style={{ color: "#FFD700" }}>Mahasiswa Baru UAJY</span>
+            <span style={{ color: "#FFD700" }}>Mahasiswa UAJY</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
             className="text-blue-200 text-sm sm:text-base">
