@@ -17,7 +17,7 @@ async function verify(token?: string): Promise<boolean> {
   return Date.now() < Number(payload);
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const ok = await verify(req.cookies.get("admin_session")?.value);
   if (!ok) {
     return NextResponse.redirect(new URL("/admin", req.url));
