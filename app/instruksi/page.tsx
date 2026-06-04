@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import { useReadCountdown } from "@/lib/useReadCountdown";
+import StickyActionFooter from "@/components/StickyActionFooter";
 
 const TIMER_SECONDS = 5;
 
@@ -41,34 +42,6 @@ const SKALA_JAWABAN = [
   { val: "3", label: "Hampir Selalu" },
 ];
 
-function DuoButton({ onClick, disabled, children }: {
-  onClick: () => void; disabled: boolean; children: React.ReactNode;
-}) {
-  const [pressed, setPressed] = useState(false);
-  return (
-    <div className="relative w-full" style={{ userSelect: "none" }}>
-      <div className="absolute inset-0 rounded-2xl translate-y-1"
-        style={{ background: disabled ? "rgba(0,0,0,0.1)" : "rgba(0,48,135,0.4)" }} />
-      <motion.button
-        onPointerDown={() => !disabled && setPressed(true)}
-        onPointerUp={() => { if (!disabled) { setPressed(false); onClick(); } }}
-        onPointerLeave={() => setPressed(false)}
-        animate={{ y: pressed ? 3 : 0, scale: pressed ? 0.98 : 1 }}
-        transition={{ type: "spring", stiffness: 600, damping: 30 }}
-        disabled={disabled}
-        className="relative w-full rounded-2xl py-4 font-bold text-base flex items-center justify-center gap-2 transition-colors"
-        style={disabled ? {
-          background: "#e2e8f0", color: "#94a3b8", cursor: "not-allowed"
-        } : {
-          background: "linear-gradient(135deg,#003087,#1a4fa0)", color: "white",
-          boxShadow: "0 4px 0 rgba(0,48,135,0.3)"
-        }}>
-        {children}
-      </motion.button>
-    </div>
-  );
-}
-
 export default function InstruksiPage() {
   const router = useRouter();
   const { timeLeft, progress, ready } = useReadCountdown(TIMER_SECONDS);
@@ -78,7 +51,7 @@ export default function InstruksiPage() {
   }, [router]);
 
   return (
-    <main style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
+    <main className="min-h-dvh bg-[#f0f4f8] pb-40">
       <div className="relative" style={{ background: "linear-gradient(135deg,#003087 0%,#1a4fa0 60%,#2563eb 100%)" }}>
         <div className="absolute inset-0 opacity-10 pointer-events-none"
           style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.4) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
@@ -91,7 +64,7 @@ export default function InstruksiPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-5 pb-4">
+      <div className="max-w-lg mx-auto px-4 py-5">
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 300 }}
@@ -131,40 +104,21 @@ export default function InstruksiPage() {
               ))}
             </div>
           </div>
-
-          <div className="pt-5 mt-5 border-t border-slate-100">
-            <AnimatePresence>
-              {!ready && (
-                <motion.div exit={{ opacity: 0 }} className="mb-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-slate-400">Harap baca instruksi...</span>
-                    <span className="text-xs font-bold tabular-nums" style={{ color: "#003087" }}>
-                      {timeLeft}s
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full overflow-hidden bg-slate-100">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${progress}%`,
-                        background: "linear-gradient(90deg,#003087,#FFD700)",
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <DuoButton onClick={() => router.push("/kuesioner")} disabled={!ready}>
-              {ready ? (
-                <><CheckCircle className="w-5 h-5" /> Saya Mengerti, Mulai Kuesioner</>
-              ) : (
-                <>Mohon baca instruksi ({timeLeft}s)</>
-              )}
-            </DuoButton>
-          </div>
         </motion.div>
       </div>
+
+      <StickyActionFooter
+        ready={ready}
+        timeLeft={timeLeft}
+        progress={progress}
+        timerHint="Harap baca instruksi..."
+        onAction={() => router.push("/kuesioner")}>
+        {ready ? (
+          <><CheckCircle className="w-5 h-5" /> Saya Mengerti, Mulai Kuesioner</>
+        ) : (
+          <>Mohon baca instruksi ({timeLeft}s)</>
+        )}
+      </StickyActionFooter>
     </main>
   );
 }
