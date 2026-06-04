@@ -103,7 +103,7 @@ export default function HasilPage() {
   useEffect(() => {
     const responden = sessionStorage.getItem("responden");
     const answersRaw = sessionStorage.getItem("answers");
-    if (!responden || !answersRaw) { router.replace("/"); return; }
+    if (!responden || !answersRaw) { router.replace("/daftar"); return; }
     const parsed = JSON.parse(responden);
     const answers: number[] = JSON.parse(answersRaw);
     setData(parsed);

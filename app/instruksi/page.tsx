@@ -73,7 +73,7 @@ export default function InstruksiPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!sessionStorage.getItem("responden")) { router.replace("/"); return; }
+    if (!sessionStorage.getItem("responden")) { router.replace("/daftar"); return; }
   }, [router]);
 
   useEffect(() => {
