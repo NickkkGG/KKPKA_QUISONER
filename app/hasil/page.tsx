@@ -21,13 +21,8 @@ const SCORE_GRADIENT: Record<string, string> = {
   "Sangat Parah": "linear-gradient(135deg,#7f1d1d,#b91c1c)",
 };
 
-const MOTIVASI: Record<string, string> = {
-  Normal: "Kondisi mentalmu dalam keadaan baik. Pertahankan pola hidup sehat dan terus jaga keseimbanganmu.",
-  Ringan: "Ada sedikit tekanan yang kamu rasakan. Istirahat cukup dan berbagi cerita dengan orang terdekat bisa membantu.",
-  Sedang: "Kondisi ini perlu perhatian lebih. Jangan ragu untuk berbicara dengan konselor atau orang yang kamu percaya.",
-  Parah: "Kondisi ini memerlukan penanganan. Segera konsultasikan dengan konselor kampus atau tenaga kesehatan mental.",
-  "Sangat Parah": "Tolong segera hubungi konselor atau tenaga kesehatan mental. Kamu tidak harus menghadapi ini sendirian.",
-};
+const CATATAN =
+  "DASS-42 merupakan alat skrining dan refleksi diri, bukan alat diagnosis klinis. Apabila hasil menunjukkan tingkat yang sangat parah dan/atau merasa membutuhkan bantuan lebih lanjut, disarankan untuk berkonsultasi dengan psikolog, konselor, atau tenaga profesional terkait.";
 
 function AnimatedNumber({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -126,9 +121,6 @@ export default function HasilPage() {
   const dResult = interpretDepresi(scores.depresi);
   const kResult = interpretKecemasan(scores.kecemasan);
   const sResult = interpretStress(scores.stress);
-  const order = ["Normal","Ringan","Sedang","Parah","Sangat Parah"];
-  const worst = [dResult.level, kResult.level, sResult.level].reduce((a, b) => order.indexOf(a) > order.indexOf(b) ? a : b);
-
   return (
     <main style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
       {/* Hero — section biasa, header di dalamnya */}
@@ -199,12 +191,12 @@ export default function HasilPage() {
               </div>
             </motion.div>
 
-            {/* Motivasi */}
+            {/* Catatan */}
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}
               className="bg-white rounded-2xl p-6"
               style={{ boxShadow: "0 4px 20px rgba(0,48,135,0.08)", border: "1px solid rgba(0,48,135,0.08)" }}>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Catatan untuk Kamu</p>
-              <p className="text-sm leading-relaxed text-slate-600">{MOTIVASI[worst]}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Catatan</p>
+              <p className="text-sm leading-relaxed text-slate-600">{CATATAN}</p>
             </motion.div>
 
             {/* UAJY */}
