@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Clock, Heart, Shield, AlertCircle } from "lucide-react";
+import { useReadCountdown } from "@/lib/useReadCountdown";
 
 const TIMER_SECONDS = 5;
 
@@ -69,20 +70,11 @@ function DuoButton({ onClick, disabled, children }: {
 
 export default function InstruksiPage() {
   const router = useRouter();
-  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
-  const [ready, setReady] = useState(false);
+  const { timeLeft, progress, ready } = useReadCountdown(TIMER_SECONDS);
 
   useEffect(() => {
     if (!sessionStorage.getItem("responden")) { router.replace("/daftar"); return; }
   }, [router]);
-
-  useEffect(() => {
-    if (timeLeft <= 0) { setReady(true); return; }
-    const t = setTimeout(() => setTimeLeft(t => t - 1), 1000);
-    return () => clearTimeout(t);
-  }, [timeLeft]);
-
-  const pct = ((TIMER_SECONDS - timeLeft) / TIMER_SECONDS) * 100;
 
   return (
     <main style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
@@ -159,10 +151,13 @@ export default function InstruksiPage() {
                   </span>
                 </div>
                 <div className="h-2 rounded-full overflow-hidden bg-slate-100">
-                  <motion.div className="h-full rounded-full"
-                    style={{ background: "linear-gradient(90deg,#003087,#FFD700)" }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 0.9, ease: "linear" }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${progress}%`,
+                      background: "linear-gradient(90deg,#003087,#FFD700)",
+                    }}
+                  />
                 </div>
               </motion.div>
             )}

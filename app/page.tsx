@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, ChevronRight } from "lucide-react";
+import { useReadCountdown } from "@/lib/useReadCountdown";
 
-const TIMER_SECONDS = 3;
+const TIMER_SECONDS = 5;
 
 const DISCLAIMER_PARAGRAPHS = [
   <>
@@ -55,16 +56,7 @@ function DuoButton({ onClick, disabled, children }: {
 
 export default function DisclaimerPage() {
   const router = useRouter();
-  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (timeLeft <= 0) { setReady(true); return; }
-    const t = setTimeout(() => setTimeLeft(t => t - 1), 1000);
-    return () => clearTimeout(t);
-  }, [timeLeft]);
-
-  const pct = ((TIMER_SECONDS - timeLeft) / TIMER_SECONDS) * 100;
+  const { timeLeft, progress, ready } = useReadCountdown(TIMER_SECONDS);
 
   return (
     <main style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
@@ -109,10 +101,13 @@ export default function DisclaimerPage() {
                   </span>
                 </div>
                 <div className="h-2 rounded-full overflow-hidden bg-slate-100">
-                  <motion.div className="h-full rounded-full"
-                    style={{ background: "linear-gradient(90deg,#003087,#FFD700)" }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 0.9, ease: "linear" }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${progress}%`,
+                      background: "linear-gradient(90deg,#003087,#FFD700)",
+                    }}
+                  />
                 </div>
               </motion.div>
             )}
