@@ -22,7 +22,7 @@ const SCORE_GRADIENT: Record<string, string> = {
 };
 
 const CATATAN =
-  "DASS-42 merupakan alat skrining dan refleksi diri, bukan alat diagnosis klinis. Apabila hasil menunjukkan tingkat yang sangat parah dan/atau merasa membutuhkan bantuan lebih lanjut, disarankan untuk berkonsultasi dengan psikolog, konselor, atau tenaga profesional terkait.";
+  "DASS-42 merupakan alat skrining dan refleksi diri, bukan alat diagnosis klinis. Apabila hasil menunjukkan tingkat yang sangat parah dan/atau Anda merasa membutuhkan bantuan lebih lanjut, disarankan untuk berkonsultasi dengan psikolog, konselor, atau tenaga profesional terkait.";
 
 function AnimatedNumber({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -206,7 +206,7 @@ export default function HasilPage() {
               <div className="w-1 h-10 rounded-full flex-shrink-0" style={{ background: "linear-gradient(180deg,#003087,#FFD700)" }} />
               <div>
                 <div className="text-xs font-semibold text-slate-600">Universitas Atma Jaya Yogyakarta</div>
-                <div className="text-xs text-slate-400 italic">Program KKPKA 2024/2025</div>
+                <div className="text-xs text-slate-400 italic">Program KKPKA 2026</div>
               </div>
             </motion.div>
 
