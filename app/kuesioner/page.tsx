@@ -44,7 +44,7 @@ export default function KuesionerPage() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [maxReached, setMaxReached] = useState(0); // soal tertinggi yang pernah dibuka
 
-  useEffect(() => { if (!sessionStorage.getItem("responden")) router.replace("/daftar"); }, [router]);
+  useEffect(() => { if (!sessionStorage.getItem("responden")) router.replace("/"); }, [router]);
   useEffect(() => {
     setSelected(answers[current] >= 0 ? answers[current] : null);
     if (current > maxReached) setMaxReached(current);

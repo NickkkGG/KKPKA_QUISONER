@@ -73,7 +73,7 @@ export default function InstruksiPage() {
   const { timeLeft, progress, ready } = useReadCountdown(TIMER_SECONDS);
 
   useEffect(() => {
-    if (!sessionStorage.getItem("responden")) { router.replace("/daftar"); return; }
+    if (!sessionStorage.getItem("responden")) { router.replace("/"); return; }
   }, [router]);
 
   return (
