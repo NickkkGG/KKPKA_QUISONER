@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Download, LogOut, Users, AlertTriangle, Activity, Filter, ArrowUpDown } from "lucide-react";
+import { Download, LogOut, Users, AlertTriangle, Activity, Filter, ArrowUpDown, Trash2, X } from "lucide-react";
 import { ANSWERS, QUESTIONS } from "@/lib/dass42";
 
 const ANSWER_LABEL: Record<number, string> = Object.fromEntries(ANSWERS.map(a => [a.value, a.label]));
@@ -33,6 +33,9 @@ export default function DashboardPage() {
   const [riskFilter, setRiskFilter] = useState("all");
   const [sortBy, setSortBy] = useState("terbaru");
   const [errMsg, setErrMsg] = useState("");
+  const [showDelete, setShowDelete] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin-data")
@@ -183,6 +186,24 @@ export default function DashboardPage() {
     router.push("/admin");
   }
 
+  async function handleDeleteAll() {
+    setDeleting(true);
+    setErrMsg("");
+    try {
+      const r = await fetch("/api/admin-delete-all", { method: "POST" });
+      if (r.status === 401) { router.replace("/admin"); return; }
+      const d = await r.json();
+      if (!r.ok) { setErrMsg(d.error ?? "Gagal menghapus data"); return; }
+      setData([]);
+      setShowDelete(false);
+      setConfirmText("");
+    } catch {
+      setErrMsg("Terjadi kesalahan saat menghapus data");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   const isAtRisk = (r: Responden) => ["Parah","Sangat Parah"].includes(r.interpretasi_depresi) ||
     ["Parah","Sangat Parah"].includes(r.interpretasi_kecemasan) || ["Parah","Sangat Parah"].includes(r.interpretasi_stress);
 
@@ -226,6 +247,11 @@ export default function DashboardPage() {
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-white transition-all"
                 style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)" }}>
                 <LogOut className="w-4 h-4" /> Keluar
+              </button>
+              <button onClick={() => { setConfirmText(""); setShowDelete(true); }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
+                style={{ background: "rgba(220,38,38,0.9)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                <Trash2 className="w-4 h-4" /> Hapus Semua
               </button>
             </div>
           </div>
@@ -336,6 +362,59 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Modal konfirmasi hapus semua data */}
+      {showDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)" }}
+          onClick={() => !deleting && setShowDelete(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-2xl w-full max-w-md overflow-hidden"
+            style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
+            onClick={(e) => e.stopPropagation()}>
+            <div className="p-5 flex items-start gap-3" style={{ background: "#fef2f2", borderBottom: "1px solid #fecaca" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(220,38,38,0.12)" }}>
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-slate-800">Hapus Semua Data?</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Tindakan ini permanen dan tidak dapat dibatalkan.</p>
+              </div>
+              <button onClick={() => !deleting && setShowDelete(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Seluruh <span className="font-bold text-slate-800">{data.length} data responden</span> akan dihapus
+                secara permanen dari database. Pastikan Anda sudah mengekspor data ke Excel terlebih dahulu jika diperlukan.
+              </p>
+              <div>
+                <label className="text-xs font-medium text-slate-500">Ketik <span className="font-bold text-red-600">HAPUS</span> untuk mengonfirmasi</label>
+                <input type="text" value={confirmText} onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="HAPUS" autoFocus
+                  className="w-full mt-1.5 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none text-sm"
+                  style={{ background: "white", border: "1.5px solid #cbd5e1" }} />
+              </div>
+              {errMsg && <p className="text-xs text-red-500">{errMsg}</p>}
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => !deleting && setShowDelete(false)} disabled={deleting}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-slate-600 transition-all"
+                  style={{ background: "#f1f5f9", border: "1px solid #e2e8f0" }}>
+                  Batal
+                </button>
+                <button onClick={handleDeleteAll} disabled={confirmText !== "HAPUS" || deleting}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
+                  style={confirmText !== "HAPUS" || deleting
+                    ? { background: "#fca5a5", cursor: "not-allowed" }
+                    : { background: "#dc2626" }}>
+                  {deleting ? "Menghapus..." : <><Trash2 className="w-4 h-4" /> Hapus Permanen</>}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </main>
   );
 }
