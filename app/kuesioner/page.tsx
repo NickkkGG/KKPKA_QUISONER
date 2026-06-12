@@ -44,7 +44,11 @@ export default function KuesionerPage() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [maxReached, setMaxReached] = useState(0); // soal tertinggi yang pernah dibuka
 
-  useEffect(() => { if (!sessionStorage.getItem("responden")) router.replace("/"); }, [router]);
+  useEffect(() => {
+    // Cegah akses kembali ke /kuesioner setelah submit — paksa isi ulang form
+    if (sessionStorage.getItem("dass42_submitted")) { router.replace("/"); return; }
+    if (!sessionStorage.getItem("responden")) router.replace("/");
+  }, [router]);
   useEffect(() => {
     setSelected(answers[current] >= 0 ? answers[current] : null);
     if (current > maxReached) setMaxReached(current);

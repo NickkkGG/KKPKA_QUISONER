@@ -90,7 +90,9 @@ export default function Home() {
 
                 <div>
                   <label className="text-xs font-semibold mb-1 block text-slate-500 uppercase tracking-wider">NPM</label>
-                  <input type="text" value={form.npm} onChange={e => set("npm", e.target.value)}
+                  <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={20}
+                    value={form.npm}
+                    onChange={e => set("npm", e.target.value.replace(/\D/g, ""))}
                     onFocus={() => setFocused("npm")} onBlur={() => setFocused(null)}
                     placeholder="Nomor Pokok Mahasiswa..."
                     className="w-full rounded-xl px-4 py-3 text-slate-800 placeholder-slate-300 focus:outline-none text-sm transition-all"

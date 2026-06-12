@@ -96,6 +96,8 @@ export default function HasilPage() {
   const submitted = useRef(false);
 
   useEffect(() => {
+    // Jika sudah pernah submit, lempar ke home — cegah duplikat data
+    if (sessionStorage.getItem("dass42_submitted")) { router.replace("/"); return; }
     const responden = sessionStorage.getItem("responden");
     const answersRaw = sessionStorage.getItem("answers");
     if (!responden || !answersRaw) { router.replace("/"); return; }
@@ -108,7 +110,14 @@ export default function HasilPage() {
     fetch("/api/submit", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...parsed, answers }),
-    }).then(() => setSaved(true));
+    }).then(() => {
+      setSaved(true);
+      // Tandai sudah submit — cegah akses ulang ke /hasil atau /kuesioner
+      sessionStorage.setItem("dass42_submitted", "1");
+      // Bersihkan data sensitif dari sessionStorage
+      sessionStorage.removeItem("answers");
+      sessionStorage.removeItem("responden");
+    });
   }, [router]);
 
   if (!data || !scores) return (
