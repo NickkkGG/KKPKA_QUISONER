@@ -1,15 +1,7 @@
--- Jalankan di Supabase SQL Editor
--- Jika tabel sudah ada, gunakan ALTER TABLE:
+-- Jalankan sekali di Supabase SQL Editor.
+-- Skrip ini aman dijalankan pada database baru maupun tabel yang sudah ada.
 
-ALTER TABLE responden
-  ADD COLUMN IF NOT EXISTS npm text,
-  ADD COLUMN IF NOT EXISTS email text,
-  ADD COLUMN IF NOT EXISTS usia integer,
-  ADD COLUMN IF NOT EXISTS jenjang text;
-
--- Jika belum ada tabel sama sekali, buat baru:
-/*
-create table responden (
+create table if not exists public.responden (
   id uuid default gen_random_uuid() primary key,
   nama text not null,
   npm text,
@@ -27,6 +19,19 @@ create table responden (
   created_at timestamptz default now()
 );
 
-alter table responden enable row level security;
-create policy "anon insert only" on responden for insert to anon with check (true);
-*/
+alter table public.responden
+  add column if not exists npm text,
+  add column if not exists email text,
+  add column if not exists usia integer,
+  add column if not exists jenjang text;
+
+create index if not exists responden_created_at_idx
+  on public.responden (created_at desc);
+
+alter table public.responden enable row level security;
+
+drop policy if exists "anon insert only" on public.responden;
+create policy "anon insert only"
+  on public.responden
+  for insert to anon
+  with check (true);

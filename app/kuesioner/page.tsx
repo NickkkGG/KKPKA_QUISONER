@@ -22,9 +22,11 @@ function DuoButton({ onClick, children, style, className }: {
       <div className="absolute inset-0 rounded-2xl translate-y-1"
         style={{ background: style?.background ? "rgba(0,0,0,0.25)" : "rgba(0,0,0,0.15)", filter: "blur(1px)" }} />
       <motion.button
+        type="button"
         onPointerDown={() => setPressed(true)}
-        onPointerUp={() => { setPressed(false); onClick(); }}
+        onPointerUp={() => setPressed(false)}
         onPointerLeave={() => setPressed(false)}
+        onClick={onClick}
         animate={{ y: pressed ? 3 : 0, scale: pressed ? 0.97 : 1 }}
         transition={{ type: "spring", stiffness: 600, damping: 30 }}
         className="relative w-full rounded-2xl py-3.5 font-semibold text-sm flex items-center justify-center gap-2"
@@ -39,7 +41,6 @@ export default function KuesionerPage() {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<number[]>(Array(42).fill(-1));
-  const [selected, setSelected] = useState<number | null>(null);
   const [direction, setDirection] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const [maxReached, setMaxReached] = useState(0); // soal tertinggi yang pernah dibuka
@@ -49,20 +50,20 @@ export default function KuesionerPage() {
     if (sessionStorage.getItem("dass42_submitted")) { router.replace("/"); return; }
     if (!sessionStorage.getItem("responden")) router.replace("/");
   }, [router]);
-  useEffect(() => {
-    setSelected(answers[current] >= 0 ? answers[current] : null);
-    if (current > maxReached) setMaxReached(current);
-  }, [current, answers]);
+  const selected = answers[current] >= 0 ? answers[current] : null;
 
   function handleAnswer(val: number) {
     if (isAnimating) return;
-    setSelected(val);
     const newAnswers = [...answers];
     newAnswers[current] = val;
     setAnswers(newAnswers);
     setIsAnimating(true);
     setTimeout(() => {
-      if (current < QUESTIONS.length - 1) { setDirection(1); setCurrent(c => c + 1); }
+      if (current < QUESTIONS.length - 1) {
+        setMaxReached((reached) => Math.max(reached, current + 1));
+        setDirection(1);
+        setCurrent(c => c + 1);
+      }
       else { sessionStorage.setItem("answers", JSON.stringify(newAnswers)); router.push("/hasil"); }
       setIsAnimating(false);
     }, 380);

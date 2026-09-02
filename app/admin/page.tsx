@@ -15,12 +15,18 @@ export default function AdminLoginPage() {
 
   async function handleLogin() {
     setLoading(true); setError("");
-    const res = await fetch("/api/admin-login", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    if (res.ok) { router.push("/admin/dashboard"); }
-    else { const d = await res.json(); setError(d.error ?? "Password salah."); setLoading(false); }
+    try {
+      const res = await fetch("/api/admin-login", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const d = await res.json().catch(() => null);
+      if (res.ok) { router.push("/admin/dashboard"); }
+      else { setError(d?.error ?? "Login gagal. Silakan coba lagi."); setLoading(false); }
+    } catch {
+      setError("Tidak dapat terhubung ke server. Silakan coba lagi.");
+      setLoading(false);
+    }
   }
 
   return (

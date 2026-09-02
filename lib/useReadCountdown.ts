@@ -8,10 +8,6 @@ export function useReadCountdown(seconds: number) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setTimeLeft(seconds);
-    setProgress(0);
-    setReady(false);
-
     const startedAt = performance.now();
     let raf = 0;
 

@@ -33,6 +33,11 @@ export default function Home() {
       setError("Semua field wajib diisi."); return;
     }
     if (!/^\S+@\S+\.\S+$/.test(email)) { setError("Format email tidak valid."); return; }
+    const usiaValue = Number(usia);
+    if (!Number.isInteger(usiaValue) || usiaValue < 15 || usiaValue > 60) {
+      setError("Usia harus antara 15 sampai 60 tahun."); return;
+    }
+    setError("");
     sessionStorage.setItem("responden", JSON.stringify({ nama: nama.trim(), npm: npm.trim(), email: email.trim(), usia, jenjang, prodi }));
     router.push("/disclaimer");
   }

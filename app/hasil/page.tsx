@@ -92,33 +92,88 @@ export default function HasilPage() {
   const router = useRouter();
   const [data, setData] = useState<{ nama: string; prodi: string } | null>(null);
   const [scores, setScores] = useState<{ depresi: number; kecemasan: number; stress: number } | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [submitState, setSubmitState] = useState<"pending" | "saved" | "error">("pending");
+  const [submitError, setSubmitError] = useState("");
+  const [submitAttempt, setSubmitAttempt] = useState(0);
   const submitted = useRef(false);
 
   useEffect(() => {
-    // Jika sudah pernah submit, lempar ke home — cegah duplikat data
+    let cancelled = false;
     if (sessionStorage.getItem("dass42_submitted")) { router.replace("/"); return; }
     const responden = sessionStorage.getItem("responden");
     const answersRaw = sessionStorage.getItem("answers");
     if (!responden || !answersRaw) { router.replace("/"); return; }
-    const parsed = JSON.parse(responden);
-    const answers: number[] = JSON.parse(answersRaw);
-    setData(parsed);
-    setScores(calculateScores(answers));
-    if (submitted.current) return;
-    submitted.current = true;
-    fetch("/api/submit", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...parsed, answers }),
-    }).then(() => {
-      setSaved(true);
-      // Tandai sudah submit — cegah akses ulang ke /hasil atau /kuesioner
-      sessionStorage.setItem("dass42_submitted", "1");
-      // Bersihkan data sensitif dari sessionStorage
-      sessionStorage.removeItem("answers");
-      sessionStorage.removeItem("responden");
-    });
-  }, [router]);
+
+    let parsed: { nama: string; prodi: string } & Record<string, unknown>;
+    let answers: number[];
+    try {
+      parsed = JSON.parse(responden);
+      answers = JSON.parse(answersRaw);
+    } catch {
+      router.replace("/");
+      return;
+    }
+
+    if (
+      !parsed || typeof parsed !== "object"
+      || typeof parsed.nama !== "string" || typeof parsed.prodi !== "string"
+      || !Array.isArray(answers) || answers.length !== 42
+      || !answers.every((answer) => Number.isInteger(answer) && answer >= 0 && answer <= 3)
+    ) {
+      router.replace("/");
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 20_000);
+    const submit = async () => {
+      // Defer hydration-only state updates until after the effect has yielded.
+      await Promise.resolve();
+      setData(parsed);
+      setScores(calculateScores(answers));
+
+      if (submitted.current) return;
+      submitted.current = true;
+      setSubmitState("pending");
+      setSubmitError("");
+
+      try {
+        const response = await fetch("/api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...parsed, answers }),
+          signal: controller.signal,
+        });
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(result?.error ?? "Gagal menyimpan jawaban. Silakan coba lagi.");
+        }
+
+        sessionStorage.setItem("dass42_submitted", "1");
+        sessionStorage.removeItem("answers");
+        sessionStorage.removeItem("responden");
+        setSubmitState("saved");
+      } catch (error) {
+        if (cancelled) return;
+        submitted.current = false;
+        setSubmitState("error");
+        setSubmitError(
+          controller.signal.aborted
+            ? "Server terlalu lama merespons. Silakan coba lagi."
+            : error instanceof Error ? error.message : "Gagal menyimpan jawaban. Silakan coba lagi."
+        );
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
+
+    void submit();
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [router, submitAttempt]);
 
   if (!data || !scores) return (
     <main className="flex items-center justify-center" style={{ minHeight: "100dvh", background: "#f0f4f8" }}>
@@ -147,14 +202,22 @@ export default function HasilPage() {
             className="text-2xl sm:text-3xl font-bold text-white mb-1">Hasil Kuesioner DASS-42</motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
             className="text-blue-200 text-sm mb-5">{data.nama} · {data.prodi}</motion.p>
-          <div className="h-7 flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: saved ? 1 : 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-white/20 text-white border border-white/30">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-300" /> Data tersimpan
-            </motion.div>
+          <div className="min-h-7 flex items-center justify-center" aria-live="polite">
+            {submitState === "pending" && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-white/20 text-white border border-white/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-yellow-300 animate-pulse" /> Menyimpan jawaban...
+              </span>
+            )}
+            {submitState === "saved" && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-white/20 text-white border border-white/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-300" /> Data tersimpan
+              </span>
+            )}
+            {submitState === "error" && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-red-500/30 text-white border border-red-200/50">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-200" /> {submitError}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -183,7 +246,6 @@ export default function HasilPage() {
                   { label: "Kecemasan", result: kResult, score: scores.kecemasan },
                   { label: "Stres", result: sResult, score: scores.stress },
                 ].map((item) => {
-                  const s = LEVEL_STYLE[item.result.level];
                   return (
                     <div key={item.label} className="flex items-center justify-between">
                       <span className="text-sm text-slate-600">{item.label}</span>
@@ -219,9 +281,23 @@ export default function HasilPage() {
               </div>
             </motion.div>
 
+            {submitState === "error" && (
+              <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                onClick={() => { submitted.current = false; setSubmitAttempt((attempt) => attempt + 1); }}
+                className="w-full py-3 rounded-xl text-sm flex items-center justify-center gap-2 text-white transition-colors"
+                style={{ background: "#003087" }}>
+                <RotateCcw className="w-3.5 h-3.5" /> Coba Simpan Lagi
+              </motion.button>
+            )}
+
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}
               whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-              onClick={() => { sessionStorage.clear(); router.push("/"); }}
+              onClick={() => {
+                sessionStorage.removeItem("dass42_submitted");
+                sessionStorage.removeItem("answers");
+                sessionStorage.removeItem("responden");
+                router.push("/");
+              }}
               className="w-full py-3 rounded-xl text-sm flex items-center justify-center gap-2 bg-white transition-colors hover:bg-slate-50"
               style={{ border: "1.5px solid #e2e8f0", color: "#94a3b8" }}>
               <RotateCcw className="w-3.5 h-3.5" /> Isi Ulang Kuesioner

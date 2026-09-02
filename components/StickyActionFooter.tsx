@@ -13,9 +13,11 @@ function DuoButton({ onClick, disabled, children }: {
       <div className="absolute inset-0 rounded-2xl translate-y-1 -z-10"
         style={{ background: disabled ? "rgba(0,0,0,0.1)" : "rgba(0,48,135,0.4)" }} />
       <motion.button
+        type="button"
         onPointerDown={() => !disabled && setPressed(true)}
-        onPointerUp={() => { if (!disabled) { setPressed(false); onClick(); } }}
+        onPointerUp={() => setPressed(false)}
         onPointerLeave={() => setPressed(false)}
+        onClick={() => !disabled && onClick()}
         animate={{ y: pressed ? 3 : 0, scale: pressed ? 0.98 : 1 }}
         transition={{ type: "spring", stiffness: 600, damping: 30 }}
         disabled={disabled}

@@ -45,7 +45,11 @@ export default function DashboardPage() {
         if (!r.ok) { setErrMsg(d.error ?? "Gagal memuat data"); setLoading(false); return null; }
         return d;
       })
-      .then((d) => { if (d) { setData(Array.isArray(d) ? d : []); setLoading(false); } });
+      .then((d) => { if (d) { setData(Array.isArray(d) ? d : []); setLoading(false); } })
+      .catch(() => {
+        setErrMsg("Tidak dapat terhubung ke server");
+        setLoading(false);
+      });
   }, [router]);
 
   async function handleExport() {
@@ -146,7 +150,7 @@ export default function DashboardPage() {
       ["Ringan", "10 – 13", "8 – 9", "15 – 18"],
       ["Sedang", "14 – 20", "10 – 14", "19 – 25"],
       ["Parah", "21 – 27", "15 – 19", "26 – 33"],
-      ["Sangat Parah", "> 28", "> 20", "> 34"],
+      ["Sangat Parah", "28+", "20+", "34+"],
     ];
     thresholds.forEach(t => {
       const row = ws2.addRow(t);
@@ -206,6 +210,7 @@ export default function DashboardPage() {
 
   const isAtRisk = (r: Responden) => ["Parah","Sangat Parah"].includes(r.interpretasi_depresi) ||
     ["Parah","Sangat Parah"].includes(r.interpretasi_kecemasan) || ["Parah","Sangat Parah"].includes(r.interpretasi_stress);
+  const totalScore = (r: Responden) => r.skala_depresi + r.skala_kecemasan + r.skala_stress;
 
   const filtered = data
     .filter((r) =>
@@ -216,7 +221,7 @@ export default function DashboardPage() {
     .filter((r) => riskFilter === "all" || (riskFilter === "risk" ? isAtRisk(r) : !isAtRisk(r)))
     .sort((a, b) => {
       if (sortBy === "nama") return (a.nama ?? "").localeCompare(b.nama ?? "");
-      if (sortBy === "risiko") return (b.skala_depresi + b.skala_kecemasan + b.skala_stress) - (a.skala_depresi + a.skala_kecemasan + a.skala_stress);
+      if (sortBy === "risiko") return totalScore(b) - totalScore(a);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
   const atRisk = data.filter(isAtRisk).length;
@@ -261,7 +266,7 @@ export default function DashboardPage() {
             {[
               { label: "Total Responden", value: data.length, icon: <Users className="w-5 h-5 text-white" />, grad: "linear-gradient(135deg,#1e40af,#3b82f6)" },
               { label: "Perlu Perhatian", value: atRisk, icon: <AlertTriangle className="w-5 h-5 text-white" />, grad: "linear-gradient(135deg,#9a3412,#ea580c)" },
-              { label: "Kondisi Normal", value: data.length - atRisk, icon: <Activity className="w-5 h-5 text-white" />, grad: "linear-gradient(135deg,#166534,#16a34a)" },
+              { label: "Bukan Prioritas Tinggi", value: data.length - atRisk, icon: <Activity className="w-5 h-5 text-white" />, grad: "linear-gradient(135deg,#166534,#16a34a)" },
             ].map((s, i) => (
               <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
                 className="rounded-2xl p-5 flex items-center gap-4"
@@ -295,8 +300,8 @@ export default function DashboardPage() {
               <select value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)}
                 className="text-sm text-slate-600 focus:outline-none bg-transparent cursor-pointer">
                 <option value="all">Semua</option>
-                <option value="risk">Perlu Perhatian</option>
-                <option value="normal">Kondisi Normal</option>
+                <option value="risk">Perlu Perhatian (Parah/Sangat Parah)</option>
+                <option value="normal">Bukan Prioritas Tinggi</option>
               </select>
             </div>
             {/* Sort */}
@@ -306,10 +311,19 @@ export default function DashboardPage() {
                 className="text-sm text-slate-600 focus:outline-none bg-transparent cursor-pointer">
                 <option value="terbaru">Terbaru</option>
                 <option value="nama">Nama A-Z</option>
-                <option value="risiko">Skor Tertinggi</option>
+                <option value="risiko">Total Skor Mentah Tertinggi</option>
               </select>
             </div>
           </div>
+        </div>
+
+        <div className="mb-4 rounded-xl px-4 py-3 text-xs leading-relaxed text-slate-500"
+          style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+          <strong className="text-slate-700">Kriteria dashboard:</strong>{" "}
+          Setiap jawaban diberi nilai 0-3; masing-masing subskala menjumlahkan 14 item sehingga skornya 0-42.
+          <b>Perlu Perhatian</b> berarti minimal satu skala berada pada level <b>Parah</b> atau <b>Sangat Parah</b>.
+          <b> Bukan Prioritas Tinggi</b> berarti tidak ada skala pada dua level tersebut, sehingga masih dapat mencakup Normal, Ringan, atau Sedang.
+          <span className="block mt-1"><b>Total skor mentah</b> adalah penjumlahan Depresi + Kecemasan + Stres (0-126) untuk pengurutan saja, bukan diagnosis klinis.</span>
         </div>
 
         {/* Table */}
@@ -325,7 +339,7 @@ export default function DashboardPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ background: "#f8fafc" }} className="border-b border-slate-100">
-                    {["Nama", "NPM", "Jenjang", "Prodi", "Usia", "Depresi", "Kecemasan", "Stress", "Tanggal"].map((h) => (
+                    {["Nama", "NPM", "Jenjang", "Prodi", "Usia", "Depresi (level/skor)", "Kecemasan (level/skor)", "Stres (level/skor)", "Total mentah", "Tanggal"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -351,6 +365,9 @@ export default function DashboardPage() {
                           <span className="text-slate-300 text-xs ml-1.5">({item.score})</span>
                         </td>
                       ))}
+                      <td className="px-4 py-3 text-slate-600 font-semibold whitespace-nowrap">
+                        {totalScore(r)}
+                      </td>
                       <td className="px-4 py-3 text-slate-400 whitespace-nowrap text-xs">
                         {new Date(r.created_at).toLocaleDateString("id-ID")}
                       </td>
