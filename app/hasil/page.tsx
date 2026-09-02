@@ -108,7 +108,14 @@ export default function HasilPage() {
     let answers: number[];
     try {
       parsed = JSON.parse(responden);
-      answers = JSON.parse(answersRaw);
+      const storedAnswers: unknown = JSON.parse(answersRaw);
+      answers = Array.isArray(storedAnswers)
+        ? storedAnswers.map((answer) => {
+          if (typeof answer === "number") return answer;
+          if (typeof answer === "string" && /^[0-3]$/.test(answer.trim())) return Number(answer);
+          return NaN;
+        })
+        : [];
     } catch {
       router.replace("/");
       return;

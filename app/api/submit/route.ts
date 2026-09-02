@@ -25,27 +25,36 @@ export async function POST(req: NextRequest) {
   const namaValue = typeof nama === "string" ? nama.trim() : "";
   const npmValue = typeof npm === "string" ? npm.trim() : "";
   const emailValue = typeof email === "string" ? email.trim().toLowerCase() : "";
-  const jenjangValue = typeof jenjang === "string" ? jenjang.trim() : "";
-  const prodiValue = typeof prodi === "string" ? prodi.trim() : "";
+  const jenjangInput = typeof jenjang === "string" ? jenjang.trim() : "";
+  const jenjangValue = JENJANG_LIST.find((item) => item.toLowerCase() === jenjangInput.toLowerCase()) ?? jenjangInput;
+  const prodiInput = typeof prodi === "string" ? prodi.trim() : "";
+  const prodiValue = PRODI_BY_JENJANG[jenjangValue]?.find((item) => item.toLowerCase() === prodiInput.toLowerCase()) ?? prodiInput;
   const usiaValue = typeof usia === "number"
     ? usia
     : typeof usia === "string" && /^\d+$/.test(usia.trim())
       ? Number(usia)
       : NaN;
-  const validAnswers = Array.isArray(answers)
-    && answers.length === 42
-    && answers.every((answer) => Number.isInteger(answer) && answer >= 0 && answer <= 3);
+  const normalizedAnswers = Array.isArray(answers)
+    ? answers.map((answer) => {
+      if (typeof answer === "number") return answer;
+      if (typeof answer === "string" && /^[0-3]$/.test(answer.trim())) return Number(answer);
+      return NaN;
+    })
+    : [];
+  const validAnswers = normalizedAnswers.length === 42
+    && normalizedAnswers.every((answer) => Number.isInteger(answer) && answer >= 0 && answer <= 3);
 
-  if (
-    namaValue.length < 2 || namaValue.length > 120
-    || !/^\d{1,20}$/.test(npmValue)
-    || !/^\S+@\S+\.\S+$/.test(emailValue) || emailValue.length > 254
-    || !Number.isInteger(usiaValue) || usiaValue < 15 || usiaValue > 60
-    || !JENJANG_LIST.includes(jenjangValue)
-    || !PRODI_BY_JENJANG[jenjangValue]?.includes(prodiValue)
-    || !validAnswers
-  ) {
-    return NextResponse.json({ error: "Data tidak valid" }, { status: 400 });
+  const validationErrors = [
+    ...(namaValue.length < 2 || namaValue.length > 120 ? ["nama"] : []),
+    ...(!/^\d{1,20}$/.test(npmValue) ? ["NPM"] : []),
+    ...(!/^\S+@\S+\.\S+$/.test(emailValue) || emailValue.length > 254 ? ["email"] : []),
+    ...(!Number.isInteger(usiaValue) || usiaValue < 15 || usiaValue > 60 ? ["usia (15-60 tahun)"] : []),
+    ...(!JENJANG_LIST.includes(jenjangValue) ? ["jenjang"] : []),
+    ...(!PRODI_BY_JENJANG[jenjangValue]?.includes(prodiValue) ? ["program studi"] : []),
+    ...(!validAnswers ? ["42 jawaban kuesioner"] : []),
+  ];
+  if (validationErrors.length > 0) {
+    return NextResponse.json({ error: `Data tidak valid: periksa ${validationErrors.join(", ")}.` }, { status: 400 });
   }
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SECRET_KEY) {
@@ -53,7 +62,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Layanan penyimpanan sedang tidak tersedia" }, { status: 503 });
   }
 
-  const normalizedAnswers = answers as number[];
   const { depresi, kecemasan, stress } = calculateScores(normalizedAnswers);
 
   try {

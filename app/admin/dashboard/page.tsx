@@ -293,22 +293,22 @@ export default function DashboardPage() {
             className="w-full sm:w-80 rounded-xl px-4 py-2.5 text-slate-700 placeholder-slate-400 focus:outline-none text-sm"
             style={{ background: "white", border: "1.5px solid #cbd5e1", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
           />
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             {/* Filter risiko */}
-            <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5" style={{ background: "white", border: "1.5px solid #cbd5e1" }}>
+            <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5 min-w-0 w-full sm:w-auto" style={{ background: "white", border: "1.5px solid #cbd5e1" }}>
               <Filter className="w-4 h-4 text-slate-400 flex-shrink-0" />
               <select value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)}
-                className="text-sm text-slate-600 focus:outline-none bg-transparent cursor-pointer">
+                className="text-sm text-slate-600 focus:outline-none bg-transparent cursor-pointer min-w-0 w-full sm:w-auto">
                 <option value="all">Semua</option>
                 <option value="risk">Perlu Perhatian (Parah/Sangat Parah)</option>
                 <option value="normal">Bukan Prioritas Tinggi</option>
               </select>
             </div>
             {/* Sort */}
-            <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5" style={{ background: "white", border: "1.5px solid #cbd5e1" }}>
+            <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5 min-w-0 w-full sm:w-auto" style={{ background: "white", border: "1.5px solid #cbd5e1" }}>
               <ArrowUpDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-                className="text-sm text-slate-600 focus:outline-none bg-transparent cursor-pointer">
+                className="text-sm text-slate-600 focus:outline-none bg-transparent cursor-pointer min-w-0 w-full sm:w-auto">
                 <option value="terbaru">Terbaru</option>
                 <option value="nama">Nama A-Z</option>
                 <option value="risiko">Total Skor Mentah Tertinggi</option>
