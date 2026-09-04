@@ -317,15 +317,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="mb-4 rounded-xl px-4 py-3 text-xs leading-relaxed text-slate-500"
-          style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}>
-          <strong className="text-slate-700">Kriteria dashboard:</strong>{" "}
-          Setiap jawaban diberi nilai 0-3; masing-masing subskala menjumlahkan 14 item sehingga skornya 0-42.
-          <b>Perlu Perhatian</b> berarti minimal satu skala berada pada level <b>Parah</b> atau <b>Sangat Parah</b>.
-          <b> Bukan Prioritas Tinggi</b> berarti tidak ada skala pada dua level tersebut, sehingga masih dapat mencakup Normal, Ringan, atau Sedang.
-          <span className="block mt-1"><b>Total skor mentah</b> adalah penjumlahan Depresi + Kecemasan + Stres (0-126) untuk pengurutan saja, bukan diagnosis klinis.</span>
-        </div>
-
         {/* Table */}
         <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "1px solid #e2e8f0", boxShadow: "0 4px 24px rgba(0,48,135,0.08)" }}>
           {loading ? (
@@ -336,11 +327,11 @@ export default function DashboardPage() {
             <div className="p-12 text-center text-slate-400">Belum ada data responden.</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full table-fixed text-[11px] sm:table-auto sm:text-sm">
                 <thead>
                   <tr style={{ background: "#f8fafc" }} className="border-b border-slate-100">
-                    {["Nama", "NPM", "Jenjang", "Prodi", "Usia", "Depresi (level/skor)", "Kecemasan (level/skor)", "Stres (level/skor)", "Total mentah", "Tanggal"].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                    {["Nama", "NPM", "Jenjang", "Prodi", "Usia", "Depresi", "Kecemasan", "Stres", "Total", "Tanggal"].map((h, index) => (
+                      <th key={h} className={`px-2 py-2 sm:px-4 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider leading-tight sm:whitespace-nowrap ${[1, 2, 3, 4, 9].includes(index) ? "hidden sm:table-cell" : ""}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -348,27 +339,27 @@ export default function DashboardPage() {
                   {filtered.map((r, i) => (
                     <motion.tr key={r.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}
                       className="border-b border-slate-50 hover:bg-blue-50/40 transition-colors">
-                      <td className="px-4 py-3 font-semibold text-slate-800 whitespace-nowrap">{r.nama}</td>
-                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{r.npm}</td>
-                      <td className="px-4 py-3"><span className="px-2 py-0.5 rounded-md text-xs font-medium" style={{ background: "rgba(0,48,135,0.08)", color: "#003087" }}>{r.jenjang}</span></td>
-                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{r.prodi}</td>
-                      <td className="px-4 py-3 text-slate-500">{r.usia}</td>
+                      <td className="px-2 py-2 sm:px-4 sm:py-3 font-semibold text-slate-800 truncate sm:whitespace-nowrap">{r.nama}</td>
+                      <td className="hidden sm:table-cell px-4 py-3 text-slate-500 whitespace-nowrap">{r.npm}</td>
+                      <td className="hidden sm:table-cell px-4 py-3"><span className="px-2 py-0.5 rounded-md text-xs font-medium" style={{ background: "rgba(0,48,135,0.08)", color: "#003087" }}>{r.jenjang}</span></td>
+                      <td className="hidden sm:table-cell px-4 py-3 text-slate-500 whitespace-nowrap">{r.prodi}</td>
+                      <td className="hidden sm:table-cell px-4 py-3 text-slate-500">{r.usia}</td>
                       {[
                         { level: r.interpretasi_depresi, score: r.skala_depresi },
                         { level: r.interpretasi_kecemasan, score: r.skala_kecemasan },
                         { level: r.interpretasi_stress, score: r.skala_stress },
                       ].map((item, j) => (
-                        <td key={j} className="px-4 py-3 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${LEVEL_COLOR[item.level]}`}>
+                        <td key={j} className="min-w-0 overflow-hidden px-1.5 py-2 sm:px-4 sm:py-3 align-top">
+                          <span className={`inline-flex max-w-full items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-xs leading-tight font-medium border whitespace-normal ${LEVEL_COLOR[item.level]}`}>
                             {item.level}
                           </span>
-                          <span className="text-slate-300 text-xs ml-1.5">({item.score})</span>
+                          <span className="block sm:inline text-slate-300 text-[9px] sm:text-xs sm:ml-1.5">({item.score})</span>
                         </td>
                       ))}
-                      <td className="px-4 py-3 text-slate-600 font-semibold whitespace-nowrap">
+                      <td className="px-1.5 py-2 sm:px-4 sm:py-3 text-slate-600 font-semibold whitespace-nowrap">
                         {totalScore(r)}
                       </td>
-                      <td className="px-4 py-3 text-slate-400 whitespace-nowrap text-xs">
+                      <td className="hidden sm:table-cell px-4 py-3 text-slate-400 whitespace-nowrap text-xs">
                         {new Date(r.created_at).toLocaleDateString("id-ID")}
                       </td>
                     </motion.tr>

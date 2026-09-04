@@ -6,6 +6,7 @@ import {
   interpretKecemasan,
   interpretStress,
   JENJANG_LIST,
+  NAME_PATTERN,
   PRODI_BY_JENJANG,
 } from "@/lib/dass42";
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     && normalizedAnswers.every((answer) => Number.isInteger(answer) && answer >= 0 && answer <= 3);
 
   const validationErrors = [
-    ...(namaValue.length < 2 || namaValue.length > 120 ? ["nama"] : []),
+    ...(namaValue.length < 2 || namaValue.length > 120 || !NAME_PATTERN.test(namaValue) ? ["nama (huruf dan spasi saja)"] : []),
     ...(!/^\d{1,20}$/.test(npmValue) ? ["NPM"] : []),
     ...(!/^\S+@\S+\.\S+$/.test(emailValue) || emailValue.length > 254 ? ["email"] : []),
     ...(!Number.isInteger(usiaValue) || usiaValue < 15 || usiaValue > 60 ? ["usia (15-60 tahun)"] : []),

@@ -52,6 +52,9 @@ export const ANSWERS = [
 
 export const JENJANG_LIST = ["S1", "S2", "S3"];
 
+// Nama hanya menerima huruf (termasuk huruf beraksen) dan spasi antar kata.
+export const NAME_PATTERN = /^\p{L}+(?: +\p{L}+)*$/u;
+
 export const PRODI_BY_JENJANG: Record<string, string[]> = {
   S1: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Sistem Informasi","Ilmu Hukum","Ilmu Komunikasi","Sosiologi","Manajemen","Akuntansi","Kedokteran"],
   S2: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Ilmu Hukum","Ilmu Komunikasi","Manajemen"],

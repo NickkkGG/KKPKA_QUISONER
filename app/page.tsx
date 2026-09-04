@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ChevronRight, Brain, Activity, Zap } from "lucide-react";
-import { JENJANG_LIST, PRODI_BY_JENJANG } from "@/lib/dass42";
+import { JENJANG_LIST, NAME_PATTERN, PRODI_BY_JENJANG } from "@/lib/dass42";
 
 const INFO_CARDS = [
   { Icon: Brain,    label: "Depresi",   desc: "Mengukur tingkat kesedihan, kehilangan minat, dan perasaan tidak berharga.", bg: "linear-gradient(135deg,#1e3a8a,#2563eb)" },
@@ -31,6 +31,9 @@ export default function Home() {
     const { nama, npm, email, usia, jenjang, prodi } = form;
     if (!nama.trim() || !npm.trim() || !email.trim() || !usia || !jenjang || !prodi) {
       setError("Semua field wajib diisi."); return;
+    }
+    if (!NAME_PATTERN.test(nama.trim())) {
+      setError("Nama hanya boleh berisi huruf dan spasi."); return;
     }
     if (!/^\S+@\S+\.\S+$/.test(email)) { setError("Format email tidak valid."); return; }
     const usiaValue = Number(usia);
@@ -86,7 +89,8 @@ export default function Home() {
               <div className="space-y-3.5">
                 <div>
                   <label className="text-xs font-semibold mb-1 block text-slate-500 uppercase tracking-wider">Nama Lengkap</label>
-                  <input type="text" value={form.nama} onChange={e => set("nama", e.target.value)}
+                  <input type="text" value={form.nama} maxLength={120}
+                    autoComplete="name" onChange={e => set("nama", e.target.value.replace(/[^\p{L} ]/gu, ""))}
                     onFocus={() => setFocused("nama")} onBlur={() => setFocused(null)}
                     placeholder="Masukkan nama lengkap..."
                     className="w-full rounded-xl px-4 py-3 text-slate-800 placeholder-slate-300 focus:outline-none text-sm transition-all"
