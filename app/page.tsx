@@ -19,7 +19,7 @@ const inputStyle = (focused: boolean) => ({
 
 export default function Home() {
   const router = useRouter();
-  const [form, setForm] = useState({ nama: "", npm: "", email: "", usia: "", jenjang: "", prodi: "" });
+  const [form, setForm] = useState({ nama: "", npm: "", noHp: "", usia: "", jenjang: "", prodi: "" });
   const [focused, setFocused] = useState<string | null>(null);
   const [error, setError] = useState("");
 
@@ -28,20 +28,23 @@ export default function Home() {
   }
 
   function handleStart() {
-    const { nama, npm, email, usia, jenjang, prodi } = form;
-    if (!nama.trim() || !npm.trim() || !email.trim() || !usia || !jenjang || !prodi) {
+    const { nama, npm, noHp, usia, jenjang, prodi } = form;
+    if (!nama.trim() || !npm.trim() || !noHp.trim() || !usia || !jenjang || !prodi) {
       setError("Semua field wajib diisi."); return;
     }
     if (!NAME_PATTERN.test(nama.trim())) {
       setError("Nama hanya boleh berisi huruf dan spasi."); return;
     }
-    if (!/^\S+@\S+\.\S+$/.test(email)) { setError("Format email tidak valid."); return; }
+    if (!/^\d{10,15}$/.test(noHp.trim())) { setError("Nomor HP/WA harus 10-15 digit."); return; }
     const usiaValue = Number(usia);
     if (!Number.isInteger(usiaValue) || usiaValue < 15 || usiaValue > 60) {
       setError("Usia harus antara 15 sampai 60 tahun."); return;
     }
     setError("");
-    sessionStorage.setItem("responden", JSON.stringify({ nama: nama.trim(), npm: npm.trim(), email: email.trim(), usia, jenjang, prodi }));
+    // Mulai sesi pengisian baru dengan membersihkan penanda/data sesi lama.
+    sessionStorage.removeItem("dass42_submitted");
+    sessionStorage.removeItem("answers");
+    sessionStorage.setItem("responden", JSON.stringify({ nama: nama.trim(), npm: npm.trim(), noHp: noHp.trim(), usia, jenjang, prodi }));
     router.push("/disclaimer");
   }
 
@@ -98,23 +101,25 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold mb-1 block text-slate-500 uppercase tracking-wider">NPM</label>
+                  <label className="text-xs font-semibold mb-1 block text-slate-500 uppercase tracking-wider">NPM LENGKAP</label>
                   <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={20}
                     value={form.npm}
                     onChange={e => set("npm", e.target.value.replace(/\D/g, ""))}
                     onFocus={() => setFocused("npm")} onBlur={() => setFocused(null)}
-                    placeholder="Nomor Pokok Mahasiswa..."
+                    placeholder="Masukkan NPM lengkap..."
                     className="w-full rounded-xl px-4 py-3 text-slate-800 placeholder-slate-300 focus:outline-none text-sm transition-all"
                     style={inputStyle(focused === "npm")} />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold mb-1 block text-slate-500 uppercase tracking-wider">Email</label>
-                  <input type="email" value={form.email} onChange={e => set("email", e.target.value)}
-                    onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
-                    placeholder="email@student.uajy.ac.id"
+                  <label className="text-xs font-semibold mb-1 block text-slate-500 uppercase tracking-wider">Nomor HP/WA</label>
+                  <input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={15}
+                    value={form.noHp}
+                    onChange={e => set("noHp", e.target.value.replace(/\D/g, ""))}
+                    onFocus={() => setFocused("noHp")} onBlur={() => setFocused(null)}
+                    autoComplete="tel" placeholder="Contoh: 081234567890"
                     className="w-full rounded-xl px-4 py-3 text-slate-800 placeholder-slate-300 focus:outline-none text-sm transition-all"
-                    style={inputStyle(focused === "email")} />
+                    style={inputStyle(focused === "noHp")} />
                 </div>
 
                 <div>

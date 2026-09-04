@@ -56,9 +56,9 @@ export const JENJANG_LIST = ["S1", "S2", "S3"];
 export const NAME_PATTERN = /^\p{L}+(?: +\p{L}+)*$/u;
 
 export const PRODI_BY_JENJANG: Record<string, string[]> = {
-  S1: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Sistem Informasi","Ilmu Hukum","Ilmu Komunikasi","Sosiologi","Manajemen","Akuntansi","Kedokteran"],
-  S2: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Ilmu Hukum","Ilmu Komunikasi","Manajemen"],
-  S3: ["Arsitektur","Teknik Sipil","Informatika","Ilmu Hukum"],
+  S1: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Sistem Informasi","Biologi","Teknologi Pangan","Hukum","Ilmu Komunikasi","Sosiologi","Manajemen","Akuntansi","Kedokteran"],
+  S2: ["Arsitektur","Teknik Sipil","Teknik Industri","Informatika","Hukum","Ilmu Komunikasi","Manajemen"],
+  S3: ["Arsitektur","Teknik Sipil","Informatika","Hukum"],
 };
 
 export function calculateScores(answers: number[]) {

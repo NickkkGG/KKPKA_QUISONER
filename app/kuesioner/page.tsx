@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
 import { QUESTIONS, ANSWERS } from "@/lib/dass42";
 
 const slideVariants = {
@@ -44,11 +45,27 @@ export default function KuesionerPage() {
   const [direction, setDirection] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const [maxReached, setMaxReached] = useState(0); // soal tertinggi yang pernah dibuka
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const allowNavigation = useRef(false);
 
   useEffect(() => {
     // Cegah akses kembali ke /kuesioner setelah submit — paksa isi ulang form
     if (sessionStorage.getItem("dass42_submitted")) { router.replace("/"); return; }
-    if (!sessionStorage.getItem("responden")) router.replace("/");
+    if (!sessionStorage.getItem("responden")) { router.replace("/"); return; }
+
+    // Sisipkan entri pengaman agar tombol Back tidak meninggalkan kuesioner.
+    const questionnaireUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const guardState = { ...window.history.state, dass42QuestionnaireGuard: true };
+    window.history.pushState(guardState, "", questionnaireUrl);
+
+    const handlePopState = () => {
+      if (allowNavigation.current) return;
+      window.history.pushState({ ...window.history.state, dass42QuestionnaireGuard: true }, "", questionnaireUrl);
+      setShowExitDialog(true);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, [router]);
   const selected = answers[current] >= 0 ? answers[current] : null;
 
@@ -64,9 +81,22 @@ export default function KuesionerPage() {
         setDirection(1);
         setCurrent(c => c + 1);
       }
-      else { sessionStorage.setItem("answers", JSON.stringify(newAnswers)); router.push("/hasil"); }
+      else {
+        allowNavigation.current = true;
+        sessionStorage.setItem("answers", JSON.stringify(newAnswers));
+        router.push("/hasil");
+      }
       setIsAnimating(false);
     }, 380);
+  }
+
+  function cancelForm() {
+    allowNavigation.current = true;
+    sessionStorage.removeItem("dass42_submitted");
+    sessionStorage.removeItem("answers");
+    sessionStorage.removeItem("responden");
+    setShowExitDialog(false);
+    router.replace("/");
   }
 
   function goBack() {
@@ -216,6 +246,47 @@ export default function KuesionerPage() {
         </AnimatePresence>
 
       </div>
+
+      {showExitDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4">
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-dialog-title"
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-start gap-3">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <h2 id="cancel-dialog-title" className="text-base font-bold text-slate-800">
+                  Batalkan pengisian?
+                </h2>
+                <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                  Anda akan kembali ke halaman awal. Jawaban yang belum selesai tidak akan disimpan.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                autoFocus
+                onClick={() => setShowExitDialog(false)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 sm:w-auto">
+                Tetap Mengisi
+              </button>
+              <button
+                type="button"
+                onClick={cancelForm}
+                className="w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 sm:w-auto">
+                Batalkan Pengisian
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </main>
   );
 }

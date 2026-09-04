@@ -5,6 +5,8 @@ create table if not exists public.responden (
   id uuid default gen_random_uuid() primary key,
   nama text not null,
   npm text,
+  no_hp text,
+  -- Kolom email dipertahankan untuk kompatibilitas data lama.
   email text,
   usia integer,
   jenjang text,
@@ -21,6 +23,7 @@ create table if not exists public.responden (
 
 alter table public.responden
   add column if not exists npm text,
+  add column if not exists no_hp text,
   add column if not exists email text,
   add column if not exists usia integer,
   add column if not exists jenjang text;

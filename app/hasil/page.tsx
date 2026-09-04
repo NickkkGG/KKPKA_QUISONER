@@ -90,7 +90,7 @@ function ScoreCard({ label, Icon, score, maxScore, interpret, delay }: {
 
 export default function HasilPage() {
   const router = useRouter();
-  const [data, setData] = useState<{ nama: string; prodi: string } | null>(null);
+  const [data, setData] = useState<{ nama: string; prodi: string; noHp: string } | null>(null);
   const [scores, setScores] = useState<{ depresi: number; kecemasan: number; stress: number } | null>(null);
   const [submitState, setSubmitState] = useState<"pending" | "saved" | "error">("pending");
   const [submitError, setSubmitError] = useState("");
@@ -104,7 +104,7 @@ export default function HasilPage() {
     const answersRaw = sessionStorage.getItem("answers");
     if (!responden || !answersRaw) { router.replace("/"); return; }
 
-    let parsed: { nama: string; prodi: string } & Record<string, unknown>;
+    let parsed: { nama: string; prodi: string; noHp: string } & Record<string, unknown>;
     let answers: number[];
     try {
       parsed = JSON.parse(responden);
@@ -124,6 +124,7 @@ export default function HasilPage() {
     if (
       !parsed || typeof parsed !== "object"
       || typeof parsed.nama !== "string" || typeof parsed.prodi !== "string"
+      || typeof parsed.noHp !== "string" || !/^\d{10,15}$/.test(parsed.noHp.trim())
       || !Array.isArray(answers) || answers.length !== 42
       || !answers.every((answer) => Number.isInteger(answer) && answer >= 0 && answer <= 3)
     ) {

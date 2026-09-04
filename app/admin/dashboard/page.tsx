@@ -9,7 +9,7 @@ import { ANSWERS, QUESTIONS } from "@/lib/dass42";
 const ANSWER_LABEL: Record<number, string> = Object.fromEntries(ANSWERS.map(a => [a.value, a.label]));
 
 type Responden = {
-  id: string; nama: string; npm: string; email: string; usia: number; jenjang: string; prodi: string;
+  id: string; nama: string; npm: string; noHp: string; usia: number; jenjang: string; prodi: string;
   answers: number[];
   skala_depresi: number; interpretasi_depresi: string;
   skala_kecemasan: number; interpretasi_kecemasan: string;
@@ -73,8 +73,8 @@ export default function DashboardPage() {
     const cols = [
       { header: "No", key: "no", width: 5 },
       { header: "Nama", key: "nama", width: 24 },
-      { header: "NPM", key: "npm", width: 14 },
-      { header: "Email", key: "email", width: 26 },
+      { header: "NPM Lengkap", key: "npm", width: 16 },
+      { header: "Nomor HP/WA", key: "noHp", width: 16 },
       { header: "Usia", key: "usia", width: 6 },
       { header: "Jenjang", key: "jenjang", width: 9 },
       { header: "Program Studi", key: "prodi", width: 20 },
@@ -104,7 +104,7 @@ export default function DashboardPage() {
         (r.answers ?? []).map((v, idx) => [`q${idx + 1}`, ANSWER_LABEL[v] ?? "-"])
       );
       const row = ws.addRow({
-        no: i + 1, nama: r.nama, npm: r.npm, email: r.email, usia: r.usia,
+        no: i + 1, nama: r.nama, npm: r.npm, noHp: r.noHp, usia: r.usia,
         jenjang: r.jenjang, prodi: r.prodi,
         ...qAnswers,
         sd: r.skala_depresi, id: r.interpretasi_depresi,
@@ -122,7 +122,7 @@ export default function DashboardPage() {
       const qKeys = Array.from({ length: 42 }, (_, j) => `q${j + 1}`);
       ["no", "usia", "jenjang", "sd", "sk", "ss", ...qKeys].forEach(k => row.getCell(k).alignment = { horizontal: "center" });
       if (i % 2 === 1) {
-        ["no","nama","npm","email","usia","jenjang","prodi","sd","sk","ss","tgl",...qKeys].forEach(k => {
+        ["no","nama","npm","noHp","usia","jenjang","prodi","sd","sk","ss","tgl",...qKeys].forEach(k => {
           row.getCell(k).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF1F5F9" } };
         });
       }
@@ -216,7 +216,8 @@ export default function DashboardPage() {
     .filter((r) =>
       r.nama?.toLowerCase().includes(search.toLowerCase()) ||
       r.prodi?.toLowerCase().includes(search.toLowerCase()) ||
-      r.npm?.toLowerCase().includes(search.toLowerCase())
+      r.npm?.toLowerCase().includes(search.toLowerCase()) ||
+      r.noHp?.toLowerCase().includes(search.toLowerCase())
     )
     .filter((r) => riskFilter === "all" || (riskFilter === "risk" ? isAtRisk(r) : !isAtRisk(r)))
     .sort((a, b) => {
@@ -289,7 +290,7 @@ export default function DashboardPage() {
         {/* Toolbar: search + filter + sort */}
         <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:items-center sm:justify-between">
           <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama, NPM, atau prodi..."
+            placeholder="Cari nama, NPM lengkap, nomor HP/WA, atau prodi..."
             className="w-full sm:w-80 rounded-xl px-4 py-2.5 text-slate-700 placeholder-slate-400 focus:outline-none text-sm"
             style={{ background: "white", border: "1.5px solid #cbd5e1", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
           />
@@ -330,8 +331,8 @@ export default function DashboardPage() {
               <table className="w-full table-fixed text-[11px] sm:table-auto sm:text-sm">
                 <thead>
                   <tr style={{ background: "#f8fafc" }} className="border-b border-slate-100">
-                    {["Nama", "NPM", "Jenjang", "Prodi", "Usia", "Depresi", "Kecemasan", "Stres", "Total", "Tanggal"].map((h, index) => (
-                      <th key={h} className={`px-2 py-2 sm:px-4 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider leading-tight sm:whitespace-nowrap ${[1, 2, 3, 4, 9].includes(index) ? "hidden sm:table-cell" : ""}`}>{h}</th>
+                    {["Nama", "NPM Lengkap", "Nomor HP/WA", "Jenjang", "Prodi", "Usia", "Depresi", "Kecemasan", "Stres", "Total", "Tanggal"].map((h, index) => (
+                      <th key={h} className={`px-2 py-2 sm:px-4 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider leading-tight sm:whitespace-nowrap ${[1, 2, 3, 4, 5, 10].includes(index) ? "hidden sm:table-cell" : ""}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -341,6 +342,7 @@ export default function DashboardPage() {
                       className="border-b border-slate-50 hover:bg-blue-50/40 transition-colors">
                       <td className="px-2 py-2 sm:px-4 sm:py-3 font-semibold text-slate-800 truncate sm:whitespace-nowrap">{r.nama}</td>
                       <td className="hidden sm:table-cell px-4 py-3 text-slate-500 whitespace-nowrap">{r.npm}</td>
+                      <td className="hidden sm:table-cell px-4 py-3 text-slate-500 whitespace-nowrap">{r.noHp}</td>
                       <td className="hidden sm:table-cell px-4 py-3"><span className="px-2 py-0.5 rounded-md text-xs font-medium" style={{ background: "rgba(0,48,135,0.08)", color: "#003087" }}>{r.jenjang}</span></td>
                       <td className="hidden sm:table-cell px-4 py-3 text-slate-500 whitespace-nowrap">{r.prodi}</td>
                       <td className="hidden sm:table-cell px-4 py-3 text-slate-500">{r.usia}</td>

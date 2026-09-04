@@ -10,6 +10,14 @@ import {
   PRODI_BY_JENJANG,
 } from "@/lib/dass42";
 
+function isMissingNoHpColumn(error: unknown) {
+  const message = error instanceof Error ? error.message : JSON.stringify(error);
+  const code = typeof error === "object" && error !== null && "code" in error
+    ? String((error as { code?: unknown }).code ?? "")
+    : "";
+  return code === "PGRST204" || /no[_ ]?hp.*column|column.*no[_ ]?hp/i.test(message);
+}
+
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
@@ -22,10 +30,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Data tidak valid" }, { status: 400 });
   }
 
-  const { nama, npm, email, usia, jenjang, prodi, answers } = body as Record<string, unknown>;
+  const { nama, npm, noHp, no_hp, usia, jenjang, prodi, answers } = body as Record<string, unknown>;
   const namaValue = typeof nama === "string" ? nama.trim() : "";
   const npmValue = typeof npm === "string" ? npm.trim() : "";
-  const emailValue = typeof email === "string" ? email.trim().toLowerCase() : "";
+  const noHpInput = noHp ?? no_hp;
+  const noHpValue = typeof noHpInput === "string" ? noHpInput.trim() : "";
   const jenjangInput = typeof jenjang === "string" ? jenjang.trim() : "";
   const jenjangValue = JENJANG_LIST.find((item) => item.toLowerCase() === jenjangInput.toLowerCase()) ?? jenjangInput;
   const prodiInput = typeof prodi === "string" ? prodi.trim() : "";
@@ -47,8 +56,8 @@ export async function POST(req: NextRequest) {
 
   const validationErrors = [
     ...(namaValue.length < 2 || namaValue.length > 120 || !NAME_PATTERN.test(namaValue) ? ["nama (huruf dan spasi saja)"] : []),
-    ...(!/^\d{1,20}$/.test(npmValue) ? ["NPM"] : []),
-    ...(!/^\S+@\S+\.\S+$/.test(emailValue) || emailValue.length > 254 ? ["email"] : []),
+    ...(!/^\d{1,20}$/.test(npmValue) ? ["NPM lengkap"] : []),
+    ...(!/^\d{10,15}$/.test(noHpValue) ? ["nomor HP/WA"] : []),
     ...(!Number.isInteger(usiaValue) || usiaValue < 15 || usiaValue > 60 ? ["usia (15-60 tahun)"] : []),
     ...(!JENJANG_LIST.includes(jenjangValue) ? ["jenjang"] : []),
     ...(!PRODI_BY_JENJANG[jenjangValue]?.includes(prodiValue) ? ["program studi"] : []),
@@ -66,10 +75,9 @@ export async function POST(req: NextRequest) {
   const { depresi, kecemasan, stress } = calculateScores(normalizedAnswers);
 
   try {
-    const { error } = await supabaseAdmin.from("responden").insert({
+    const responseFields = {
       nama: namaValue,
       npm: npmValue,
-      email: emailValue,
       usia: usiaValue,
       jenjang: jenjangValue,
       prodi: prodiValue,
@@ -80,7 +88,16 @@ export async function POST(req: NextRequest) {
       interpretasi_kecemasan: interpretKecemasan(kecemasan).level,
       skala_stress: stress,
       interpretasi_stress: interpretStress(stress).level,
-    });
+    };
+    let insertResult = await supabaseAdmin.from("responden").insert({ ...responseFields, no_hp: noHpValue });
+
+    // Database lama masih memakai kolom `email`; fallback ini menjaga submit tetap berjalan
+    // sampai migrasi `no_hp` dijalankan di Supabase.
+    if (insertResult.error && isMissingNoHpColumn(insertResult.error)) {
+      insertResult = await supabaseAdmin.from("responden").insert({ ...responseFields, email: noHpValue });
+    }
+
+    const { error } = insertResult;
 
     if (error) {
       console.error("Failed to save DASS-42 response", error);
